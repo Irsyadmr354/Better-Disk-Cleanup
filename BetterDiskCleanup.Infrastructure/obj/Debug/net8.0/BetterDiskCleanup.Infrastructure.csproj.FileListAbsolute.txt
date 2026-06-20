@@ -1,0 +1,16 @@
+C:\Users\Royan\Documents\Better Disk Cleanup\BetterDiskCleanup.Infrastructure\bin\Debug\net8.0\BetterDiskCleanup.Infrastructure.deps.json
+C:\Users\Royan\Documents\Better Disk Cleanup\BetterDiskCleanup.Infrastructure\bin\Debug\net8.0\BetterDiskCleanup.Infrastructure.dll
+C:\Users\Royan\Documents\Better Disk Cleanup\BetterDiskCleanup.Infrastructure\bin\Debug\net8.0\BetterDiskCleanup.Infrastructure.pdb
+C:\Users\Royan\Documents\Better Disk Cleanup\BetterDiskCleanup.Infrastructure\bin\Debug\net8.0\BetterDiskCleanup.Core.dll
+C:\Users\Royan\Documents\Better Disk Cleanup\BetterDiskCleanup.Infrastructure\bin\Debug\net8.0\BetterDiskCleanup.Core.pdb
+C:\Users\Royan\Documents\Better Disk Cleanup\BetterDiskCleanup.Infrastructure\obj\Debug\net8.0\BetterDiskCleanup.Infrastructure.csproj.AssemblyReference.cache
+C:\Users\Royan\Documents\Better Disk Cleanup\BetterDiskCleanup.Infrastructure\obj\Debug\net8.0\BetterDiskCleanup.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Royan\Documents\Better Disk Cleanup\BetterDiskCleanup.Infrastructure\obj\Debug\net8.0\BetterDiskCleanup.Infrastructure.AssemblyInfoInputs.cache
+C:\Users\Royan\Documents\Better Disk Cleanup\BetterDiskCleanup.Infrastructure\obj\Debug\net8.0\BetterDiskCleanup.Infrastructure.AssemblyInfo.cs
+C:\Users\Royan\Documents\Better Disk Cleanup\BetterDiskCleanup.Infrastructure\obj\Debug\net8.0\BetterDiskCleanup.Infrastructure.csproj.CoreCompileInputs.cache
+C:\Users\Royan\Documents\Better Disk Cleanup\BetterDiskCleanup.Infrastructure\obj\Debug\net8.0\BetterDi.664DEDC5.Up2Date
+C:\Users\Royan\Documents\Better Disk Cleanup\BetterDiskCleanup.Infrastructure\obj\Debug\net8.0\BetterDiskCleanup.Infrastructure.dll
+C:\Users\Royan\Documents\Better Disk Cleanup\BetterDiskCleanup.Infrastructure\obj\Debug\net8.0\refint\BetterDiskCleanup.Infrastructure.dll
+C:\Users\Royan\Documents\Better Disk Cleanup\BetterDiskCleanup.Infrastructure\obj\Debug\net8.0\BetterDiskCleanup.Infrastructure.pdb
+C:\Users\Royan\Documents\Better Disk Cleanup\BetterDiskCleanup.Infrastructure\obj\Debug\net8.0\ref\BetterDiskCleanup.Infrastructure.dll
+C:\Users\Royan\Documents\Better Disk Cleanup\BetterDiskCleanup.Infrastructure\obj\Debug\net8.0\BetterDiskCleanup.Infrastructure.sourcelink.json

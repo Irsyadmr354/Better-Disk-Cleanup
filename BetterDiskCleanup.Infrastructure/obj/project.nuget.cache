@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "dgSpecHash": "4oLtL1NUQ/c=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\Royan\\Documents\\Better Disk Cleanup\\BetterDiskCleanup.Infrastructure\\BetterDiskCleanup.Infrastructure.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Royan\\.nuget\\packages\\microsoft.extensions.dependencyinjection\\8.0.1\\microsoft.extensions.dependencyinjection.8.0.1.nupkg.sha512",
+    "C:\\Users\\Royan\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\8.0.2\\microsoft.extensions.dependencyinjection.abstractions.8.0.2.nupkg.sha512",
+    "C:\\Users\\Royan\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\8.0.2\\microsoft.extensions.logging.abstractions.8.0.2.nupkg.sha512",
+    "C:\\Users\\Royan\\.nuget\\packages\\microsoft.extensions.options\\8.0.2\\microsoft.extensions.options.8.0.2.nupkg.sha512",
+    "C:\\Users\\Royan\\.nuget\\packages\\microsoft.extensions.primitives\\8.0.0\\microsoft.extensions.primitives.8.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}

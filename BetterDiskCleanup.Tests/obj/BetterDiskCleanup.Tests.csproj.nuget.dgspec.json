@@ -1,0 +1,241 @@
+{
+  "format": 1,
+  "restore": {
+    "C:\\Users\\Royan\\Documents\\Better Disk Cleanup\\BetterDiskCleanup.Tests\\BetterDiskCleanup.Tests.csproj": {}
+  },
+  "projects": {
+    "C:\\Users\\Royan\\Documents\\Better Disk Cleanup\\BetterDiskCleanup.Core\\BetterDiskCleanup.Core.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\Royan\\Documents\\Better Disk Cleanup\\BetterDiskCleanup.Core\\BetterDiskCleanup.Core.csproj",
+        "projectName": "BetterDiskCleanup.Core",
+        "projectPath": "C:\\Users\\Royan\\Documents\\Better Disk Cleanup\\BetterDiskCleanup.Core\\BetterDiskCleanup.Core.csproj",
+        "packagesPath": "C:\\Users\\Royan\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Royan\\Documents\\Better Disk Cleanup\\BetterDiskCleanup.Core\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\Royan\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.422/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Users\\Royan\\Documents\\Better Disk Cleanup\\BetterDiskCleanup.Infrastructure\\BetterDiskCleanup.Infrastructure.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\Royan\\Documents\\Better Disk Cleanup\\BetterDiskCleanup.Infrastructure\\BetterDiskCleanup.Infrastructure.csproj",
+        "projectName": "BetterDiskCleanup.Infrastructure",
+        "projectPath": "C:\\Users\\Royan\\Documents\\Better Disk Cleanup\\BetterDiskCleanup.Infrastructure\\BetterDiskCleanup.Infrastructure.csproj",
+        "packagesPath": "C:\\Users\\Royan\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Royan\\Documents\\Better Disk Cleanup\\BetterDiskCleanup.Infrastructure\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\Royan\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "C:\\Users\\Royan\\Documents\\Better Disk Cleanup\\BetterDiskCleanup.Core\\BetterDiskCleanup.Core.csproj": {
+                "projectPath": "C:\\Users\\Royan\\Documents\\Better Disk Cleanup\\BetterDiskCleanup.Core\\BetterDiskCleanup.Core.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "Microsoft.Extensions.DependencyInjection": {
+              "target": "Package",
+              "version": "[8.0.1, )"
+            },
+            "Microsoft.Extensions.Logging.Abstractions": {
+              "target": "Package",
+              "version": "[8.0.2, )"
+            },
+            "Microsoft.Extensions.Options": {
+              "target": "Package",
+              "version": "[8.0.2, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.422/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Users\\Royan\\Documents\\Better Disk Cleanup\\BetterDiskCleanup.Tests\\BetterDiskCleanup.Tests.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\Royan\\Documents\\Better Disk Cleanup\\BetterDiskCleanup.Tests\\BetterDiskCleanup.Tests.csproj",
+        "projectName": "BetterDiskCleanup.Tests",
+        "projectPath": "C:\\Users\\Royan\\Documents\\Better Disk Cleanup\\BetterDiskCleanup.Tests\\BetterDiskCleanup.Tests.csproj",
+        "packagesPath": "C:\\Users\\Royan\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Royan\\Documents\\Better Disk Cleanup\\BetterDiskCleanup.Tests\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\Royan\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "C:\\Users\\Royan\\Documents\\Better Disk Cleanup\\BetterDiskCleanup.Core\\BetterDiskCleanup.Core.csproj": {
+                "projectPath": "C:\\Users\\Royan\\Documents\\Better Disk Cleanup\\BetterDiskCleanup.Core\\BetterDiskCleanup.Core.csproj"
+              },
+              "C:\\Users\\Royan\\Documents\\Better Disk Cleanup\\BetterDiskCleanup.Infrastructure\\BetterDiskCleanup.Infrastructure.csproj": {
+                "projectPath": "C:\\Users\\Royan\\Documents\\Better Disk Cleanup\\BetterDiskCleanup.Infrastructure\\BetterDiskCleanup.Infrastructure.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "Microsoft.Extensions.DependencyInjection": {
+              "target": "Package",
+              "version": "[8.0.1, )"
+            },
+            "Microsoft.Extensions.Logging": {
+              "target": "Package",
+              "version": "[8.0.1, )"
+            },
+            "Microsoft.Extensions.Logging.Abstractions": {
+              "target": "Package",
+              "version": "[8.0.2, )"
+            },
+            "Microsoft.Extensions.Options": {
+              "target": "Package",
+              "version": "[8.0.2, )"
+            },
+            "Microsoft.NET.Test.Sdk": {
+              "target": "Package",
+              "version": "[17.8.0, )"
+            },
+            "coverlet.collector": {
+              "target": "Package",
+              "version": "[6.0.0, )"
+            },
+            "xunit": {
+              "target": "Package",
+              "version": "[2.5.3, )"
+            },
+            "xunit.runner.visualstudio": {
+              "target": "Package",
+              "version": "[2.5.3, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.422/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}
