@@ -1,5 +1,7 @@
 ﻿using BetterDiskCleanup.App.ViewModels;
+using System.Collections.Specialized;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace BetterDiskCleanup.App;
@@ -11,6 +13,15 @@ public partial class MainWindow : Window
         InitializeComponent();
         DataContext = shellViewModel;
         Loaded += async (_, _) => await shellViewModel.RecoveryHistoryViewModel.RefreshAsync();
+
+        // Auto-scroll log to bottom when new entries are added
+        shellViewModel.LogStore.Entries.CollectionChanged += (_, e) =>
+        {
+            if (e.Action == NotifyCollectionChangedAction.Add && LogListBox.Items.Count > 0)
+            {
+                LogListBox.ScrollIntoView(LogListBox.Items[^1]);
+            }
+        };
     }
 
     private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)

@@ -10,14 +10,22 @@ public sealed class MainShellViewModel : ViewModelBase
         MainViewModel cleanupViewModel,
         RecoveryHistoryViewModel recoveryHistoryViewModel,
         BrowserCleanupViewModel browserCleanupViewModel,
-        LargeFileFinderViewModel largeFileFinderViewModel)
+        LargeFileFinderViewModel largeFileFinderViewModel,
+        LogStore logStore)
     {
         CleanupViewModel = cleanupViewModel;
         RecoveryHistoryViewModel = recoveryHistoryViewModel;
         BrowserCleanupViewModel = browserCleanupViewModel;
         LargeFileFinderViewModel = largeFileFinderViewModel;
+        LogStore = logStore;
         SelectPageCommand = new ParameterizedRelayCommand(
             p => SelectedIndex = int.TryParse(p?.ToString(), out var i) ? i : 0);
+        ToggleLogCommand = new RelayCommand(() =>
+        {
+            IsLogVisible = !IsLogVisible;
+            OnPropertyChanged(nameof(IsLogVisible));
+        });
+        ClearLogCommand = new RelayCommand(() => logStore.Clear());
     }
 
     public MainViewModel CleanupViewModel { get; }
@@ -27,6 +35,13 @@ public sealed class MainShellViewModel : ViewModelBase
     public BrowserCleanupViewModel BrowserCleanupViewModel { get; }
 
     public LargeFileFinderViewModel LargeFileFinderViewModel { get; }
+
+    public LogStore LogStore { get; }
+
+    public bool IsLogVisible { get; private set; } = true;
+
+    public ICommand ToggleLogCommand { get; }
+    public ICommand ClearLogCommand { get; }
 
     public int SelectedIndex
     {

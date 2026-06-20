@@ -50,7 +50,7 @@ public sealed class LargeFileFinderViewModel : ViewModelBase
         _safetyValidator = safetyValidator;
         _logger = logger;
 
-        _selectedThreshold = ThresholdOptions[2]; // default 1 GB
+        _selectedThreshold = ThresholdOptions[0]; // default 100 MB
 
         AvailableDrives = [];
         Results = [];
@@ -231,7 +231,7 @@ public sealed class LargeFileFinderViewModel : ViewModelBase
         {
             var progress = new Progress<LargeFileScanProgress>(report =>
             {
-                ProgressText = $"Found {report.FilesFound} file(s), {FormatBytes(report.BytesScanned)} scanned";
+                ProgressText = $"Scanned {report.DirectoriesScanned:N0} dirs | Found {report.FilesFound} file(s) ({FormatBytes(report.BytesScanned)})";
             });
 
             _scanResult = await _scanner.ScanAsync(
@@ -242,11 +242,19 @@ public sealed class LargeFileFinderViewModel : ViewModelBase
 
             PopulateResults(_scanResult.Entries);
 
-            SummaryText = $"Found {_scanResult.Entries.Count} file(s) over {SelectedThreshold.Label}, " +
-                          $"total: {FormatBytes(_scanResult.TotalSizeBytes)}" +
-                          (_scanResult.Warnings.Count > 0 ? $", {_scanResult.Warnings.Count} warning(s)" : string.Empty);
+            if (_scanResult.Entries.Count == 0)
+            {
+                SummaryText = $"No files over {SelectedThreshold.Label} found. Try a lower threshold.";
+                StatusMessage = "Scan completed. No large files found — try lowering the threshold.";
+            }
+            else
+            {
+                SummaryText = $"Found {_scanResult.Entries.Count} file(s) over {SelectedThreshold.Label}, " +
+                              $"total: {FormatBytes(_scanResult.TotalSizeBytes)}" +
+                              (_scanResult.Warnings.Count > 0 ? $", {_scanResult.Warnings.Count} warning(s)" : string.Empty);
+                StatusMessage = "Scan completed.";
+            }
 
-            StatusMessage = "Scan completed.";
             ProgressText = string.Empty;
         }
         catch (OperationCanceledException)

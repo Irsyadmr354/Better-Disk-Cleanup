@@ -85,6 +85,7 @@ public sealed class LargeFileScanner : ILargeFileScanner
         var warnings = new ConcurrentBag<ScanWarning>();
         var filesFoundCounter = new int[1];
         var bytesScannedCounter = new long[1];
+        var dirsScannedCounter = new int[1];
 
         if (!_fileSystem.DirectoryExists(rootPath))
         {
@@ -96,7 +97,14 @@ public sealed class LargeFileScanner : ILargeFileScanner
             return BuildResult(entries, warnings, 0);
         }
 
+        _logger.LogInformation(
+            "Starting large file scan. Root={Root}, Threshold={ThresholdBytes} bytes ({ThresholdMB} MB)",
+            rootPath, thresholdBytes, thresholdBytes / (1024 * 1024));
+
         var maxDegree = Math.Min(Environment.ProcessorCount, 8);
+        var level = 0;
+        var totalDirsProcessed = 0;
+        var totalDirsDenied = 0;
 
         // BFS directory traversal, processing in batches
         var batch = new List<string> { rootPath };
@@ -106,17 +114,22 @@ public sealed class LargeFileScanner : ILargeFileScanner
         {
             cancellationToken.ThrowIfCancellationRequested();
             nextLevel.Clear();
+            level++;
+
+            _logger.LogInformation("BFS Level {Level}: processing {Count} directories...", level, batch.Count);
 
             // Discover child directories for each directory in the current batch
             foreach (var dir in batch)
             {
-                IEnumerable<string> childDirs;
+                IReadOnlyList<string> childDirs;
                 try
                 {
-                    childDirs = _fileSystem.EnumerateDirectoriesDirect(dir);
+                    // Materialize inside try-catch to capture lazy enumeration exceptions
+                    childDirs = _fileSystem.EnumerateDirectoriesDirect(dir).ToList();
                 }
                 catch (Exception ex) when (IsAccessIssue(ex))
                 {
+                    totalDirsDenied++;
                     if (dir == rootPath)
                     {
                         warnings.Add(new ScanWarning
@@ -125,17 +138,28 @@ public sealed class LargeFileScanner : ILargeFileScanner
                             Message = $"Unable to enumerate subdirectories: {ex.Message}"
                         });
                     }
+                    _logger.LogDebug("Access denied enumerating: {Dir} ({Msg})", dir, ex.Message);
                     continue;
                 }
 
                 foreach (var childDir in childDirs)
                 {
-                    if (!ShouldSkipReparsePoint(childDir))
+                    try
                     {
-                        nextLevel.Add(childDir);
+                        if (!ShouldSkipReparsePoint(childDir))
+                        {
+                            nextLevel.Add(childDir);
+                        }
+                    }
+                    catch (Exception ex) when (IsAccessIssue(ex))
+                    {
+                        totalDirsDenied++;
                     }
                 }
             }
+
+            _logger.LogInformation("BFS Level {Level}: found {ChildCount} subdirectories, processing files in {DirCount} dirs",
+                level, nextLevel.Count, batch.Count);
 
             // Process current batch of directories in parallel for files
             try
@@ -150,7 +174,7 @@ public sealed class LargeFileScanner : ILargeFileScanner
                 {
                     ct.ThrowIfCancellationRequested();
                     ProcessDirectory(directory, thresholdBytes, entries, warnings,
-                        filesFoundCounter, bytesScannedCounter, progress);
+                        filesFoundCounter, bytesScannedCounter, dirsScannedCounter, progress);
                     return ValueTask.CompletedTask;
                 }).GetAwaiter().GetResult();
             }
@@ -163,10 +187,24 @@ public sealed class LargeFileScanner : ILargeFileScanner
                 break;
             }
 
+            totalDirsProcessed += batch.Count;
+
+            // Report progress after each BFS level
+            progress?.Report(new LargeFileScanProgress
+            {
+                FilesFound = filesFoundCounter[0],
+                BytesScanned = bytesScannedCounter[0],
+                DirectoriesScanned = dirsScannedCounter[0],
+                CurrentPath = $"Level {level}: {nextLevel.Count} subdirs queued"
+            });
+
             // Move to next level
             batch.Clear();
             batch.AddRange(nextLevel);
         }
+
+        _logger.LogInformation("BFS traversal complete. Levels={Levels}, TotalDirs={TotalDirs}, Denied={Denied}, FilesFound={Files}",
+            level, totalDirsProcessed, totalDirsDenied, filesFoundCounter[0]);
 
         var totalSize = entries.Sum(e => e.SizeBytes);
         _logger.LogInformation(
@@ -183,12 +221,14 @@ public sealed class LargeFileScanner : ILargeFileScanner
         ConcurrentBag<ScanWarning> warnings,
         int[] filesFound,
         long[] bytesScanned,
+        int[] dirsScanned,
         IProgress<LargeFileScanProgress>? progress)
     {
-        IEnumerable<string> files;
+        IReadOnlyList<string> files;
         try
         {
-            files = _fileSystem.EnumerateFilesDirect(directory);
+            // Materialize inside try-catch to capture lazy enumeration exceptions
+            files = _fileSystem.EnumerateFilesDirect(directory).ToList();
         }
         catch (Exception ex) when (IsAccessIssue(ex))
         {
@@ -232,6 +272,7 @@ public sealed class LargeFileScanner : ILargeFileScanner
                 {
                     FilesFound = count,
                     BytesScanned = total,
+                    DirectoriesScanned = dirsScanned[0],
                     CurrentPath = filePath
                 });
             }
@@ -244,6 +285,8 @@ public sealed class LargeFileScanner : ILargeFileScanner
                 });
             }
         }
+
+        Interlocked.Increment(ref dirsScanned[0]);
     }
 
     private bool ShouldSkipReparsePoint(string directoryPath)

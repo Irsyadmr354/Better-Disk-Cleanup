@@ -60,10 +60,15 @@
                         </StackPanel>
                     </Border>
 
-                    <!-- Version -->
-                    <TextBlock DockPanel.Dock="Bottom" Text="v1.0 · Fase 3B"
-                               Style="{StaticResource SubText}"
-                               Margin="20,0,0,14" />
+                    <!-- Version + Log Toggle -->
+                    <StackPanel DockPanel.Dock="Bottom" Margin="12,0,12,14">
+                        <Button Content="Toggle Log"
+                                Style="{StaticResource SecondaryButton}"
+                                Command="{Binding ToggleLogCommand}"
+                                Padding="8,5" FontSize="10" Margin="0,0,0,6" />
+                        <TextBlock Text="v1.0 · Fase 3B"
+                                   Style="{StaticResource SubText}" />
+                    </StackPanel>
 
                     <!-- Nav Buttons -->
                     <StackPanel Margin="0,8,0,0">
@@ -121,6 +126,13 @@
                     </StackPanel>
                 </DockPanel>
             </Border>
+
+            <!-- ===== MAIN CONTENT AREA (pages + log panel) ===== -->
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
 
             <!-- ===== PAGE: TEMP CLEANUP ===== -->
             <Grid Visibility="{Binding IsTempPage, Converter={StaticResource BoolToVis}}">
@@ -562,6 +574,72 @@
                         </ListView.ContextMenu>
                     </ListView>
                 </Grid>
+            </Grid>
+
+            <!-- ===== LIVE LOG PANEL (Row 1 of outer grid) ===== -->
+            <Border Grid.Row="1"
+                    Background="{StaticResource BgBase}"
+                    BorderBrush="{StaticResource Border}"
+                    BorderThickness="0,1,0,0"
+                    Visibility="{Binding IsLogVisible, Converter={StaticResource BoolToVis}}">
+                <Grid Height="160">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <!-- Log Header -->
+                    <Border Grid.Row="0" Background="{StaticResource BgSurface}" Padding="12,5">
+                        <DockPanel>
+                            <TextBlock Text="Live Log" DockPanel.Dock="Left"
+                                       Foreground="{StaticResource TextMuted}"
+                                       FontSize="11" FontWeight="SemiBold" />
+                            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                                <Button Content="Clear"
+                                        Style="{StaticResource SecondaryButton}"
+                                        Command="{Binding ClearLogCommand}"
+                                        Padding="8,3" FontSize="10" Margin="0,0,6,0" />
+                                <Button Content="Hide"
+                                        Style="{StaticResource SecondaryButton}"
+                                        Command="{Binding ToggleLogCommand}"
+                                        Padding="8,3" FontSize="10" />
+                            </StackPanel>
+                        </DockPanel>
+                    </Border>
+
+                    <!-- Log Entries -->
+                    <ListBox x:Name="LogListBox" Grid.Row="1"
+                             ItemsSource="{Binding LogStore.Entries}"
+                             Background="Transparent"
+                             BorderThickness="0"
+                             ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                             ScrollViewer.CanContentScroll="False"
+                             FontFamily="Consolas"
+                             FontSize="11">
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="ListBoxItem">
+                                <Setter Property="Padding" Value="12,2" />
+                                <Setter Property="Foreground" Value="{StaticResource TextSecondary}" />
+                                <Setter Property="Background" Value="Transparent" />
+                                <Setter Property="BorderThickness" Value="0" />
+                                <Setter Property="IsHitTestVisible" Value="False" />
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="ListBoxItem">
+                                            <TextBlock Text="{Binding}"
+                                                       Foreground="{TemplateBinding Foreground}"
+                                                       Padding="{TemplateBinding Padding}"
+                                                       FontFamily="Consolas"
+                                                       FontSize="11" />
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+                    </ListBox>
+                </Grid>
+            </Border>
+
             </Grid>
 
         </DockPanel>

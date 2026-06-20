@@ -6,8 +6,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using Serilog.Events;
 using Serilog.Formatting.Json;
+using System.Diagnostics;
 using System.IO;
+using System.Security.Principal;
 using System.Windows;
 using System.Windows.Threading;
 
@@ -29,6 +32,14 @@ public partial class App : Application
 
     protected override void OnStartup(StartupEventArgs e)
     {
+        // ── Auto-elevate to Administrator ─────────────────────────────────
+        if (!IsRunningAsAdministrator())
+        {
+            RestartAsAdministrator();
+            Shutdown();
+            return;
+        }
+
         // ── Global exception handlers (installed as early as possible) ──────
         AppDomain.CurrentDomain.UnhandledException += OnAppDomainUnhandledException;
         DispatcherUnhandledException += OnDispatcherUnhandledException;
@@ -43,6 +54,9 @@ public partial class App : Application
 
             Directory.CreateDirectory(logDirectory);
 
+            // Create the UI log store singleton (used by both Serilog and the UI)
+            var logStore = new ViewModels.LogStore();
+
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Information()
                 .WriteTo.Console(new JsonFormatter())
@@ -50,6 +64,7 @@ public partial class App : Application
                     new JsonFormatter(),
                     Path.Combine(logDirectory, "app-.log"),
                     rollingInterval: RollingInterval.Day)
+                .WriteTo.Sink(logStore, restrictedToMinimumLevel: LogEventLevel.Information)
                 .CreateLogger();
 
             // Ensure the recovery staging root exists BEFORE any DI resolution
@@ -74,6 +89,7 @@ public partial class App : Application
                     services.Configure<RecoveryOptions>(
                         context.Configuration.GetSection(RecoveryOptions.SectionName));
                     services.AddBetterDiskCleanupInfrastructure();
+                    services.AddSingleton(logStore);
                     services.AddTransient<MainViewModel>();
                     services.AddTransient<RecoveryHistoryViewModel>();
                     services.AddTransient<BrowserCleanupViewModel>();
@@ -179,6 +195,80 @@ public partial class App : Application
     }
 
     // ── Helpers ─────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Checks whether the current process is running with Administrator privileges.
+    /// </summary>
+    private static bool IsRunningAsAdministrator()
+    {
+        using var identity = WindowsIdentity.GetCurrent();
+        var principal = new WindowsPrincipal(identity);
+        return principal.IsInRole(WindowsBuiltInRole.Administrator);
+    }
+
+    /// <summary>
+    /// Restarts the current application as Administrator via UAC elevation.
+    /// Handles both standalone exe and `dotnet run` scenarios.
+    /// </summary>
+    private static void RestartAsAdministrator()
+    {
+        try
+        {
+            var processPath = Process.GetCurrentProcess().MainModule?.FileName
+                              ?? Environment.ProcessPath;
+
+            if (string.IsNullOrEmpty(processPath))
+            {
+                MessageBox.Show(
+                    "Could not determine application path for elevation.\n" +
+                    "Please run the application as Administrator manually.",
+                    "Admin Required",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+                return;
+            }
+
+            var isDotNetHost = Path.GetFileNameWithoutExtension(processPath)
+                .Equals("dotnet", StringComparison.OrdinalIgnoreCase);
+
+            ProcessStartInfo startInfo;
+
+            if (isDotNetHost)
+            {
+                // Running via `dotnet run` or `dotnet <dll>` — restart dotnet with the app DLL
+                var appDll = Path.Combine(AppContext.BaseDirectory, "BetterDiskCleanup.App.dll");
+                startInfo = new ProcessStartInfo
+                {
+                    FileName = processPath,
+                    Arguments = $"\"{appDll}\"",
+                    UseShellExecute = true,
+                    Verb = "runas"
+                };
+            }
+            else
+            {
+                // Running as standalone exe
+                startInfo = new ProcessStartInfo
+                {
+                    FileName = processPath,
+                    UseShellExecute = true,
+                    Verb = "runas"
+                };
+            }
+
+            Process.Start(startInfo);
+        }
+        catch (Exception ex)
+        {
+            // User cancelled UAC or elevation failed
+            MessageBox.Show(
+                $"Failed to restart as Administrator.\n\n{ex.Message}\n\n" +
+                "Please right-click the application and select 'Run as administrator'.",
+                "Admin Required",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+        }
+    }
 
     /// <summary>
     /// Creates the recovery staging root directory if it does not exist.
