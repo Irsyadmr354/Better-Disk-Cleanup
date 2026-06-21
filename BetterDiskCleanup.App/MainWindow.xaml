@@ -713,7 +713,7 @@
                                 <GridViewColumn Header="Protection" Width="150">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <TextBlock Text="{Binding ProtectionReason}" Foreground="{StaticResource ErrorBrush}" FontStyle="Italic" FontSize="11" />
+                                            <TextBlock Text="{Binding ProtectionReason}" Foreground="{StaticResource Danger}" FontStyle="Italic" FontSize="11" />
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>

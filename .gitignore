@@ -486,3 +486,4 @@ $RECYCLE.BIN/
 Publish/
 Output/
 BetterDiskCleanup.Tests/TestResults/
+crash-fallback.log
