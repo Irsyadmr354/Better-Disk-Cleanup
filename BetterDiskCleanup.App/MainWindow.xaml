@@ -240,14 +240,14 @@
                                 <RowDefinition Height="*" />
                             </Grid.RowDefinitions>
                             
-                            <Border Grid.Row="0" Grid.Column="0" Margin="0,0,10,10" Background="{StaticResource BgSurface}" CornerRadius="8" Padding="16">
+                            <Border Grid.Row="0" Grid.Column="0" Margin="0,0,10,10" Style="{StaticResource CardBorder}" Padding="16">
                                 <StackPanel>
                                     <TextBlock Text="Health Score" Foreground="{StaticResource TextMuted}" FontSize="14" />
                                     <TextBlock Text="{Binding HealthScoreDisplay}" Foreground="{StaticResource Accent}" FontSize="48" FontWeight="Bold" Margin="0,8,0,0" />
                                 </StackPanel>
                             </Border>
                             
-                            <Border Grid.Row="0" Grid.Column="1" Margin="10,0,0,10" Background="{StaticResource BgSurface}" CornerRadius="8" Padding="16">
+                            <Border Grid.Row="0" Grid.Column="1" Margin="10,0,0,10" Style="{StaticResource CardBorder}" Padding="16">
                                 <StackPanel>
                                     <TextBlock Text="Total Recoverable Space" Foreground="{StaticResource TextMuted}" FontSize="14" />
                                     <TextBlock Text="{Binding TotalRecoverableSpaceDisplay}" Foreground="{StaticResource TextPrimary}" FontSize="32" FontWeight="Bold" Margin="0,8,0,0" />
@@ -255,14 +255,14 @@
                                 </StackPanel>
                             </Border>
                             
-                            <Border Grid.Row="1" Grid.Column="0" Margin="0,10,10,0" Background="{StaticResource BgSurface}" CornerRadius="8" Padding="16">
+                            <Border Grid.Row="1" Grid.Column="0" Margin="0,10,10,0" Style="{StaticResource CardBorder}" Padding="16">
                                 <StackPanel>
                                     <TextBlock Text="Free Space Remaining" Foreground="{StaticResource TextMuted}" FontSize="14" />
                                     <TextBlock Text="{Binding FreeSpaceDisplay}" Foreground="{StaticResource TextPrimary}" FontSize="32" FontWeight="Bold" Margin="0,8,0,0" />
                                 </StackPanel>
                             </Border>
                             
-                            <Border Grid.Row="1" Grid.Column="1" Margin="10,10,0,0" Background="{StaticResource BgSurface}" CornerRadius="8" Padding="16">
+                            <Border Grid.Row="1" Grid.Column="1" Margin="10,10,0,0" Style="{StaticResource CardBorder}" Padding="16">
                                 <StackPanel>
                                     <TextBlock Text="Startup Impact" Foreground="{StaticResource TextMuted}" FontSize="14" />
                                     <TextBlock Text="{Binding HighImpactStartups, StringFormat='{}{0} High Impact'}" Foreground="{StaticResource Danger}" FontSize="32" FontWeight="Bold" Margin="0,8,0,0" />
@@ -272,7 +272,7 @@
 
                         <!-- CTA View (When NOT Scanned) -->
                         <Border Grid.Row="2" Visibility="{Binding HasScannedAny, Converter={StaticResource InvertBool}}" 
-                                Background="{StaticResource BgSurface}" CornerRadius="8" Padding="32" VerticalAlignment="Center">
+                                Style="{StaticResource CardBorder}" Padding="32" VerticalAlignment="Center">
                             <StackPanel HorizontalAlignment="Center">
                                 <TextBlock Text="No Scan Data Available" Foreground="{StaticResource TextPrimary}" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" />
                                 <TextBlock Text="You haven't performed any scans yet. Navigate to any module to scan your PC and generate your health dashboard." Foreground="{StaticResource TextSecondary}" FontSize="14" TextWrapping="Wrap" TextAlignment="Center" Margin="0,12,0,24" MaxWidth="400" />
