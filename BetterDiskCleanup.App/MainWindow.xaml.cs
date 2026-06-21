@@ -19,7 +19,14 @@ public partial class MainWindow : Window
         {
             if (e.Action == NotifyCollectionChangedAction.Add && LogListBox.Items.Count > 0)
             {
-                LogListBox.ScrollIntoView(LogListBox.Items[^1]);
+                try
+                {
+                    LogListBox.ScrollIntoView(LogListBox.Items[^1]);
+                }
+                catch
+                {
+                    // VirtualizingStackPanel may throw during rapid updates — safe to ignore
+                }
             }
         };
     }

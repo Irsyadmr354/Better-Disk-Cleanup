@@ -95,7 +95,10 @@ public sealed class RecoverySessionViewModel : ViewModelBase
         SessionId = summary.SessionId;
         CreatedAtUtc = summary.CreatedAtUtc;
         ExpiresAtUtc = summary.ExpiresAtUtc;
-        Status = summary.Status;
+        // Compute effective status: manifest may still say "Active" past expiry
+        Status = summary.Status == RecoverySessionStatus.Active && summary.ExpiresAtUtc <= DateTimeOffset.UtcNow
+            ? RecoverySessionStatus.Expired
+            : summary.Status;
         FileCount = summary.FileCount;
         TotalSizeBytes = summary.TotalSizeBytes;
         Items = [];
@@ -203,7 +206,10 @@ public sealed class RecoverySessionViewModel : ViewModelBase
         var summary = _recoveryService.ListSessions().FirstOrDefault(session => session.SessionId == SessionId);
         if (summary is not null)
         {
-            Status = summary.Status;
+            // Compute effective status considering expiration
+            Status = summary.Status == RecoverySessionStatus.Active && summary.ExpiresAtUtc <= DateTimeOffset.UtcNow
+                ? RecoverySessionStatus.Expired
+                : summary.Status;
             FileCount = summary.FileCount;
             TotalSizeBytes = summary.TotalSizeBytes;
             OnPropertyChanged(nameof(SummaryText));

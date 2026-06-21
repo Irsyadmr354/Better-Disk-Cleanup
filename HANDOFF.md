@@ -123,6 +123,10 @@
 - **Fix:** BFS level-by-level traversal pakai `EnumerateDirectoriesDirect` (non-recursive)
 - **Lazy enumeration bug:** `Directory.EnumerateDirectories/Files` return lazy enumerables — exceptions thrown OUTSIDE try-catch when iterating. Fix: `.ToList()` inside try-catch.
 
+### Drive Path Bug (the real "0 results" root cause)
+- **Root cause:** `GetAvailableDrives()` trimmed trailing backslash → returned `"C:"` instead of `"C:\"`. On Windows, `Directory.EnumerateDirectories("C:")` enumerates the **current directory on that drive** (usually `System32` for admin), NOT the drive root → 0 subdirs found → scan completed instantly with nothing.
+- **Fix:** Removed `TrimEnd` — drive paths now keep trailing backslash (`"C:\"`) so `Directory.EnumerateDirectories` correctly enumerates the root.
+
 ### Auto-Admin Elevation
 - App requires Administrator privileges for full drive scanning
 - Checks on startup, auto-restarts with UAC elevation if not admin
@@ -143,6 +147,12 @@
 - **Progress text format:** `Scanned 1,234 dirs | Found 5 file(s) (2.3 GB)` — shows scan is alive even before files are found
 - **0-files hint:** When scan returns 0 results, status shows "No large files found — try lowering the threshold" instead of generic "Scan completed"
 - **Startup log:** Scanner logs threshold in MB at scan start for easy diagnosis
+
+### LogStore Crash Fix (VirtualizingStackPanel desync)
+- **Root cause:** `LogStore.Emit` was called from multiple background threads, each scheduling its own `Dispatcher.BeginInvoke`. Rapid individual `Add()` calls desynchronized the WPF `VirtualizingStackPanel` item count.
+- **Crash:** `InvalidOperationException: Accumulated count N is different from actual count M` during `ScrollIntoView` layout pass.
+- **Fix:** `LogStore` now buffers entries in a `List<string>` (protected by lock) and flushes all buffered entries in a **single** `Dispatcher.BeginInvoke` call. Only one dispatcher operation is ever pending.
+- **Safety net:** `MainWindow.xaml.cs` auto-scroll now wraps `ScrollIntoView` in try-catch to ignore transient layout exceptions.
 
 ---
 
@@ -182,9 +192,10 @@ BetterDiskCleanup.App/
 ├── App.xaml                           [MODIFIED - full UI overhaul: new palette, custom styles]
 ├── App.xaml.cs                        [MODIFIED - auto-admin elevation, LogStore+Serilog wiring]
 ├── MainWindow.xaml                    [MODIFIED - log panel at bottom, Toggle Log button]
+├── MainWindow.xaml.cs                 [MODIFIED - safe ScrollIntoView try-catch]
 ├── ViewModels/
 │   ├── LargeFileFinderViewModel.cs    [MODIFIED - default 100MB, dir progress, 0-files hint]
-│   ├── LogStore.cs                    [NEW - Serilog sink → ObservableCollection<string>]
+│   ├── LogStore.cs                    [MODIFIED - buffered flush to prevent VirtualizingStackPanel crash]
 │   └── MainShellViewModel.cs          [MODIFIED - LogStore, IsLogVisible, Toggle/Clear commands]
 
 BetterDiskCleanup.Tests/

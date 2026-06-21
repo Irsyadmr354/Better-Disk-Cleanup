@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Windows.Threading;
 using Serilog.Core;
 using Serilog.Events;
 
@@ -7,10 +8,15 @@ namespace BetterDiskCleanup.App.ViewModels;
 /// <summary>
 /// Singleton store for live log entries displayed in the UI.
 /// Acts as both a Serilog sink (receives log events) and a ViewModel data source.
+/// Buffers entries from background threads and flushes in a single dispatcher call
+/// to avoid desynchronizing the WPF VirtualizingStackPanel.
 /// </summary>
 public sealed class LogStore : ILogEventSink
 {
     private const int MaxEntries = 200;
+    private readonly object _lock = new();
+    private readonly List<string> _buffer = [];
+    private DispatcherOperation? _pendingFlush;
 
     public ObservableCollection<string> Entries { get; } = [];
 
@@ -30,23 +36,49 @@ public sealed class LogStore : ILogEventSink
 
         var entry = $"[{timestamp}] [{level}] {message}";
 
-        // Must be on UI thread for ObservableCollection
-        System.Windows.Application.Current?.Dispatcher?.BeginInvoke(() =>
+        lock (_lock)
         {
-            Entries.Add(entry);
-            // Trim oldest entries to keep memory bounded
-            while (Entries.Count > MaxEntries)
+            _buffer.Add(entry);
+
+            // Only schedule one dispatcher call — it will flush all buffered entries
+            if (_pendingFlush is null)
             {
-                Entries.RemoveAt(0);
+                _pendingFlush = System.Windows.Application.Current?.Dispatcher?.BeginInvoke(FlushBuffer);
             }
-        });
+        }
     }
 
     public void Clear()
     {
         System.Windows.Application.Current?.Dispatcher?.BeginInvoke(() =>
         {
+            lock (_lock)
+            {
+                _buffer.Clear();
+            }
             Entries.Clear();
         });
+    }
+
+    private void FlushBuffer()
+    {
+        List<string> batch;
+        lock (_lock)
+        {
+            batch = [.. _buffer];
+            _buffer.Clear();
+            _pendingFlush = null;
+        }
+
+        foreach (var entry in batch)
+        {
+            Entries.Add(entry);
+        }
+
+        // Trim oldest entries to keep memory bounded
+        while (Entries.Count > MaxEntries)
+        {
+            Entries.RemoveAt(0);
+        }
     }
 }

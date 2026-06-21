@@ -289,7 +289,17 @@ public sealed class LargeFileFinderViewModel : ViewModelBase
 
         foreach (var entry in sorted)
         {
-            Results.Add(new LargeFileItemViewModel(entry));
+            var item = new LargeFileItemViewModel(entry);
+            item.PropertyChanged += OnResultItemPropertyChanged;
+            Results.Add(item);
+        }
+    }
+
+    private void OnResultItemPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(LargeFileItemViewModel.IsSelected))
+        {
+            ((AsyncRelayCommand)DeleteCommand).RaiseCanExecuteChanged();
         }
     }
 

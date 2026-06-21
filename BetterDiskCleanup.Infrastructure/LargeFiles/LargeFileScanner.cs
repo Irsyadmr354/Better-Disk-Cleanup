@@ -54,9 +54,12 @@ public sealed class LargeFileScanner : ILargeFileScanner
     {
         try
         {
+            // Keep the trailing backslash (e.g. "C:\") — without it,
+            // Directory.EnumerateDirectories("C:") refers to the current
+            // directory on the drive, NOT the root, resulting in 0 subdirs.
             return DriveInfo.GetDrives()
                 .Where(d => d.IsReady && d.DriveType == DriveType.Fixed)
-                .Select(d => d.RootDirectory.FullName.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar))
+                .Select(d => d.RootDirectory.FullName)
                 .ToList();
         }
         catch (Exception ex)

@@ -215,13 +215,18 @@ public sealed class BrowserCleanupViewModel : ViewModelBase
             }
 
             var dataEntryViewModels = new ObservableCollection<BrowserDataEntryViewModel>(
-                profileEntries.Select(entry => new BrowserDataEntryViewModel(entry)
+                profileEntries.Select(entry =>
                 {
-                    // Auto-select only Safe/Recommended items; never auto-select Cookies/History
-                    IsSelected = entry.DataType is BrowserDataType.Cache
-                        or BrowserDataType.Temporary
-                        or BrowserDataType.ServiceWorker
-                        or BrowserDataType.Sessions
+                    var vm = new BrowserDataEntryViewModel(entry)
+                    {
+                        // Auto-select only Safe/Recommended items; never auto-select Cookies/History
+                        IsSelected = entry.DataType is BrowserDataType.Cache
+                            or BrowserDataType.Temporary
+                            or BrowserDataType.ServiceWorker
+                            or BrowserDataType.Sessions
+                    };
+                    vm.PropertyChanged += OnDataEntryPropertyChanged;
+                    return vm;
                 }));
 
             var profileVm = new BrowserProfileViewModel(
@@ -242,6 +247,15 @@ public sealed class BrowserCleanupViewModel : ViewModelBase
                 var group = new BrowserGroupViewModel(profile.BrowserName, [profileVm]);
                 BrowserGroups.Add(group);
             }
+        }
+    }
+
+    private void OnDataEntryPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(BrowserDataEntryViewModel.IsSelected))
+        {
+            ((AsyncRelayCommand)PreviewCommand).RaiseCanExecuteChanged();
+            ((AsyncRelayCommand)CleanCommand).RaiseCanExecuteChanged();
         }
     }
 
