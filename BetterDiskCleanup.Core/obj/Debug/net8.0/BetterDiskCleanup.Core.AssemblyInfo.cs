@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("BetterDiskCleanup.Core")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7e19a1c9762fd3c529be0620e4b0aef53511d67b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e01ecc87d52d225e085de8900a8d4e7ea1dbc67a")]
 [assembly: System.Reflection.AssemblyProductAttribute("BetterDiskCleanup.Core")]
 [assembly: System.Reflection.AssemblyTitleAttribute("BetterDiskCleanup.Core")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
