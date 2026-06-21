@@ -73,6 +73,7 @@ public sealed class MainShellViewModel : ViewModelBase
                 OnPropertyChanged(nameof(IsDashboardPage));
                 OnPropertyChanged(nameof(IsTempPage));
                 OnPropertyChanged(nameof(IsBrowserPage));
+                OnPropertyChanged(nameof(IsRecoveryPage));
                 OnPropertyChanged(nameof(IsLargeFilesPage));
                 OnPropertyChanged(nameof(IsDuplicatesPage));
                 OnPropertyChanged(nameof(IsStartupPage));
@@ -91,12 +92,13 @@ public sealed class MainShellViewModel : ViewModelBase
     public bool IsDashboardPage => _selectedIndex == 0;
     public bool IsTempPage => _selectedIndex == 1;
     public bool IsBrowserPage => _selectedIndex == 2;
-    public bool IsLargeFilesPage => _selectedIndex == 3;
-    public bool IsDuplicatesPage => _selectedIndex == 4;
-    public bool IsStartupPage => _selectedIndex == 5;
-    public bool IsStorageAnalyzerPage => _selectedIndex == 6;
-    public bool IsReportsPage => _selectedIndex == 7;
-    public bool IsSettingsPage => _selectedIndex == 8;
+    public bool IsRecoveryPage => _selectedIndex == 3;
+    public bool IsLargeFilesPage => _selectedIndex == 4;
+    public bool IsDuplicatesPage => _selectedIndex == 5;
+    public bool IsStartupPage => _selectedIndex == 6;
+    public bool IsStorageAnalyzerPage => _selectedIndex == 7;
+    public bool IsReportsPage => _selectedIndex == 8;
+    public bool IsSettingsPage => _selectedIndex == 9;
 
     public ICommand SelectPageCommand { get; }
 }

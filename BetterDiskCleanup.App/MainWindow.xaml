@@ -164,9 +164,9 @@
                         </RadioButton>
 
                         <RadioButton Style="{StaticResource NavButton}"
-                                     IsChecked="{Binding SelectedIndex, Converter={StaticResource EqualityConverter}, ConverterParameter=7, Mode=TwoWay}"
+                                     IsChecked="{Binding SelectedIndex, Converter={StaticResource EqualityConverter}, ConverterParameter=9, Mode=TwoWay}"
                                      Command="{Binding SelectPageCommand}"
-                                     CommandParameter="7">
+                                     CommandParameter="9">
                             <StackPanel Orientation="Horizontal">
                                 <Path Data="M 3,3 L 17,3 L 17,17 L 3,17 Z M 3,10 L 17,10 M 10,3 L 10,10 M 10,10 L 10,17 M 3,10 L 10,10"
                                       Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"
@@ -516,7 +516,7 @@
             </Grid>
 
             <!-- ===== PAGE: RECOVERY HISTORY ===== -->
-            <Grid Visibility="{Binding IsRecoveryPage, Converter={StaticResource BoolToVis}}">
+            <Grid Visibility="{Binding IsRecoveryPage, Converter={StaticResource BoolToVis}}" Style="{StaticResource PageGridStyle}">
                 <Grid DataContext="{Binding DataContext.RecoveryHistoryViewModel, RelativeSource={RelativeSource AncestorType=Window}}"
                       Margin="28,24,28,16">
                     <Grid.RowDefinitions>
