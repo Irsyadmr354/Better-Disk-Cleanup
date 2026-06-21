@@ -79,6 +79,11 @@ public sealed class MainShellViewModel : ViewModelBase
                 OnPropertyChanged(nameof(IsStorageAnalyzerPage));
                 OnPropertyChanged(nameof(IsReportsPage));
                 OnPropertyChanged(nameof(IsSettingsPage));
+
+                if (_selectedIndex == 0)
+                {
+                    DashboardViewModel.RefreshCommand.Execute(null);
+                }
             }
         }
     }

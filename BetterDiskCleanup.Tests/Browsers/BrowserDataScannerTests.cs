@@ -6,6 +6,8 @@ using BetterDiskCleanup.Core.Browsers;
 using BetterDiskCleanup.Infrastructure.Browsers;
 using BetterDiskCleanup.Tests.Support;
 using Microsoft.Extensions.Logging.Abstractions;
+using BetterDiskCleanup.Core.Safety;
+using Moq;
 using Xunit;
 
 namespace BetterDiskCleanup.Tests.Browsers;
@@ -18,21 +20,24 @@ public class BrowserDataScannerTests
         var fs = new InMemoryFileSystemGateway();
         var cacheDir = @"C:\Users\Test\AppData\Local\Google\Chrome\User Data\Default\Cache";
         fs.CreateDirectory(cacheDir);
-        fs.CreateFile(Path.Combine(cacheDir, "data_1"), 1024);
-        fs.CreateFile(Path.Combine(cacheDir, "data_2"), 2048);
+        fs.AddFile(Path.Combine(cacheDir, "data_1"), 1024);
+        fs.AddFile(Path.Combine(cacheDir, "data_2"), 2048);
 
-        var adapters = new List<IBrowserAdapter> { new ChromiumBrowserAdapter(fs) };
-        var scanner = new BrowserDataScanner(adapters, NullLogger<BrowserDataScanner>.Instance);
+        var safetyValidator = new Mock<IPathSafetyValidator>();
+        safetyValidator.Setup(v => v.Validate(It.IsAny<string>())).Returns(SafetyValidationResult.Allowed(RiskLevel.Safe));
+
+        var scanner = new BrowserDataScanner(fs, safetyValidator.Object, NullLogger<BrowserDataScanner>.Instance);
 
         var profile = new BrowserProfile
         {
             BrowserName = "Google Chrome",
             ProfileName = "Default",
             ProfilePath = @"C:\Users\Test\AppData\Local\Google\Chrome\User Data\Default",
-            BrowserType = BrowserType.Chromium
+            BrowserEngine = "Chromium",
+            ProcessName = "chrome"
         };
 
-        var result = await scanner.ScanAsync(new[] { profile }, CancellationToken.None);
+        var result = await scanner.ScanAsync(new[] { profile }, null, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Single(result.Profiles);

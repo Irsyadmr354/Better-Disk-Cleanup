@@ -15,12 +15,19 @@ public class JsonSettingsService : ISettingsService
 
     public AppSettings Current => _current;
 
-    public JsonSettingsService()
+    public JsonSettingsService(string? settingsFilePath = null)
     {
-        var appData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-        var appFolder = Path.Combine(appData, "BetterDiskCleanup");
-        Directory.CreateDirectory(appFolder);
-        _settingsFilePath = Path.Combine(appFolder, "settings.json");
+        if (settingsFilePath != null)
+        {
+            _settingsFilePath = settingsFilePath;
+        }
+        else
+        {
+            var appData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            var appFolder = Path.Combine(appData, "BetterDiskCleanup");
+            Directory.CreateDirectory(appFolder);
+            _settingsFilePath = Path.Combine(appFolder, "settings.json");
+        }
 
         _current = Load();
     }
