@@ -8,4 +8,6 @@ public sealed class LargeFileEntry
     public required FileCategory Category { get; init; }
     public required long SizeBytes { get; init; }
     public required DateTime LastModifiedUtc { get; init; }
+    public bool IsProtected { get; init; }
+    public string? ProtectionReason { get; init; }
 }

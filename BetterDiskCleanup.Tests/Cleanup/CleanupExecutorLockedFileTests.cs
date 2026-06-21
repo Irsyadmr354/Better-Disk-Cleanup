@@ -40,6 +40,7 @@ public sealed class CleanupExecutorLockedFileTests : IDisposable
             recovery,
             recoveryOptions,
             new NullCleanupFailureDetailLogger(),
+            new NullFileLockInspector(),
             NullLogger<CleanupExecutor>.Instance);
 
         using var lockStream = new FileStream(

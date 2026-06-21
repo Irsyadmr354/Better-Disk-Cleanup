@@ -29,7 +29,7 @@ public class JsonSettingsServiceTests : IDisposable
         
         Assert.NotNull(service.Current);
         Assert.True(service.Current.EnableNotifications);
-        Assert.Equal(10, service.Current.CriticalDiskSpaceThresholdGb);
+        Assert.Equal(5.0, service.Current.CriticalDiskSpaceThresholdGb);
     }
 
     [Fact]

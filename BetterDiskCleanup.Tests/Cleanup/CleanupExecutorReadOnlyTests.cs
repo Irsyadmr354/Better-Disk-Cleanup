@@ -40,6 +40,7 @@ public sealed class CleanupExecutorReadOnlyTests : IDisposable
             recovery,
             recoveryOptions,
             new NullCleanupFailureDetailLogger(),
+            new NullFileLockInspector(),
             NullLogger<CleanupExecutor>.Instance);
 
         var scanResult = CreateScanResult(readOnlyFile);

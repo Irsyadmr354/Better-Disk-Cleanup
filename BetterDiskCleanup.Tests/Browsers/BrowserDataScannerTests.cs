@@ -18,7 +18,7 @@ public class BrowserDataScannerTests
     public async Task ScanAsync_WithValidProfile_ReturnsFiles()
     {
         var fs = new InMemoryFileSystemGateway();
-        var cacheDir = @"C:\Users\Test\AppData\Local\Google\Chrome\User Data\Default\Cache";
+        var cacheDir = @"C:\Users\Test\AppData\Local\Google\Chrome\User Data\Default\Cache\Cache_Data";
         fs.CreateDirectory(cacheDir);
         fs.AddFile(Path.Combine(cacheDir, "data_1"), 1024);
         fs.AddFile(Path.Combine(cacheDir, "data_2"), 2048);

@@ -38,6 +38,7 @@ public sealed class CleanupExecutorTests
             recovery,
             recoveryOptions,
             new NullCleanupFailureDetailLogger(),
+            new NullFileLockInspector(),
             NullLogger<CleanupExecutor>.Instance);
 
         var scanResult = new ScanResult

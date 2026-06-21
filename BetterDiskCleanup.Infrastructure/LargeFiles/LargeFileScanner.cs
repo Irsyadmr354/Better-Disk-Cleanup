@@ -2,6 +2,8 @@ using System.Collections.Concurrent;
 using BetterDiskCleanup.Core.Analysis;
 using BetterDiskCleanup.Core.Filesystem;
 using BetterDiskCleanup.Core.LargeFiles;
+using BetterDiskCleanup.Core.Safety;
+using BetterDiskCleanup.Core.Settings;
 using Microsoft.Extensions.Logging;
 
 namespace BetterDiskCleanup.Infrastructure.LargeFiles;
@@ -9,6 +11,8 @@ namespace BetterDiskCleanup.Infrastructure.LargeFiles;
 public sealed class LargeFileScanner : ILargeFileScanner
 {
     private readonly IFileSystemGateway _fileSystem;
+    private readonly ICriticalFileGuard _criticalFileGuard;
+    private readonly IUserExclusionService _userExclusionService;
     private readonly ILogger<LargeFileScanner> _logger;
 
     internal static readonly Dictionary<string, FileCategory> ExtensionMap = new(StringComparer.OrdinalIgnoreCase)
@@ -44,9 +48,13 @@ public sealed class LargeFileScanner : ILargeFileScanner
 
     public LargeFileScanner(
         IFileSystemGateway fileSystem,
+        ICriticalFileGuard criticalFileGuard,
+        IUserExclusionService userExclusionService,
         ILogger<LargeFileScanner> logger)
     {
         _fileSystem = fileSystem;
+        _criticalFileGuard = criticalFileGuard;
+        _userExclusionService = userExclusionService;
         _logger = logger;
     }
 
@@ -257,6 +265,13 @@ public sealed class LargeFileScanner : ILargeFileScanner
                 var fileName = Path.GetFileName(filePath);
                 var lastModified = _fileSystem.GetLastWriteTimeUtc(filePath);
 
+                if (_userExclusionService.IsExcluded(filePath))
+                {
+                    continue;
+                }
+
+                var criticalCheck = _criticalFileGuard.Check(filePath);
+
                 var entry = new LargeFileEntry
                 {
                     Path = filePath,
@@ -264,7 +279,9 @@ public sealed class LargeFileScanner : ILargeFileScanner
                     Extension = extension,
                     Category = CategorizeFile(extension),
                     SizeBytes = size,
-                    LastModifiedUtc = lastModified
+                    LastModifiedUtc = lastModified,
+                    IsProtected = criticalCheck.IsCritical,
+                    ProtectionReason = criticalCheck.Reason
                 };
 
                 entries.Add(entry);

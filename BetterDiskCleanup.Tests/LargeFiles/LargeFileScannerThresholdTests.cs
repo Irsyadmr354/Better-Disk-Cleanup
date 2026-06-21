@@ -9,7 +9,11 @@ public sealed class LargeFileScannerThresholdTests
 {
     private static LargeFileScanner CreateScanner(InMemoryFileSystemGateway fs)
     {
-        return new LargeFileScanner(fs, NullLogger<LargeFileScanner>.Instance);
+        return new LargeFileScanner(
+            fs,
+            new NullCriticalFileGuard(),
+            new NullUserExclusionService(),
+            NullLogger<LargeFileScanner>.Instance);
     }
 
     [Fact]

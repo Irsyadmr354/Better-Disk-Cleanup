@@ -31,7 +31,9 @@ public static class DependencyInjection
     {
         services.AddOptions<RecoveryOptions>();
         services.AddSingleton<IPathSafetyValidator, PathSafetyValidator>();
+        services.AddSingleton<ICriticalFileGuard, CriticalFileGuard>();
         services.AddSingleton<IFileSystemGateway, FileSystemGateway>();
+        services.AddSingleton<IFileLockInspector, RestartManagerFileLockInspector>();
         services.AddSingleton<ICleanupFailureDetailLogger, CleanupFailureDetailFileLogger>();
         services.AddSingleton<ITempFileScanner, TempFileScanner>();
         services.AddSingleton<ICleanupSimulator, CleanupSimulator>();
@@ -63,6 +65,7 @@ public static class DependencyInjection
 
         // Fase 5 — Settings & Monitoring
         services.AddSingleton<ISettingsService, JsonSettingsService>();
+        services.AddSingleton<IUserExclusionService, UserExclusionService>();
         services.AddHostedService<StorageMonitorService>();
 
         return services;

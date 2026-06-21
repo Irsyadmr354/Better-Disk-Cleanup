@@ -12,6 +12,9 @@ public class AppSettings
 
     // Cleanup Rules
     public int LargeFileThresholdMb { get; set; } = 500;
-    public int RecoveryRetentionDays { get; set; } = 30;
+    public int RecoveryRetentionDays { get; init; } = 30;
     public string DefaultDuplicateSelectionStrategy { get; set; } = "KeepNewest";
+    
+    // Custom Exclusions
+    public List<string> UserExclusionPatterns { get; set; } = new();
 }

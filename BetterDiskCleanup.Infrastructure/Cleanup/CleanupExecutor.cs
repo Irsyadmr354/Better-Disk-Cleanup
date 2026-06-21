@@ -18,6 +18,7 @@ public sealed class CleanupExecutor : ICleanupExecutor
     private readonly IRecoverySnapshotService _recoverySnapshotService;
     private readonly IRecoveryOptions _recoveryOptions;
     private readonly ICleanupFailureDetailLogger _failureDetailLogger;
+    private readonly IFileLockInspector _fileLockInspector;
     private readonly ILogger<CleanupExecutor> _logger;
 
     public CleanupExecutor(
@@ -26,6 +27,7 @@ public sealed class CleanupExecutor : ICleanupExecutor
         IRecoverySnapshotService recoverySnapshotService,
         IOptions<RecoveryOptions> recoveryOptions,
         ICleanupFailureDetailLogger failureDetailLogger,
+        IFileLockInspector fileLockInspector,
         ILogger<CleanupExecutor> logger)
     {
         _safetyValidator = safetyValidator;
@@ -33,6 +35,7 @@ public sealed class CleanupExecutor : ICleanupExecutor
         _recoverySnapshotService = recoverySnapshotService;
         _recoveryOptions = new RecoveryOptionsAdapter(recoveryOptions);
         _failureDetailLogger = failureDetailLogger;
+        _fileLockInspector = fileLockInspector;
         _logger = logger;
     }
 
@@ -124,10 +127,16 @@ public sealed class CleanupExecutor : ICleanupExecutor
                     var stageMessage = stageResult.ErrorMessage ?? "Unknown staging failure.";
                     if (stageMessage.Contains("being used by another process", StringComparison.OrdinalIgnoreCase))
                     {
-                        const string message = "Skipped because the file is in use by another process.";
+                        var message = "Skipped because the file is in use by another process.";
+                        var lockInfo = _fileLockInspector.TryGetLockingProcess(item.Path);
+                        if (lockInfo is not null)
+                        {
+                            message += $" Locked by: {lockInfo.ProcessName} (PID: {lockInfo.ProcessId})";
+                        }
+                        
                         skippedInUse.Add(new CleanupMessage { Path = item.Path, Message = message });
                         LogFailure(CleanupFailureStage.FileInUse, item.Path, exception: null, message);
-                        _logger.LogWarning("Skipped in-use file during staging: {Path}", item.Path);
+                        _logger.LogWarning("Skipped in-use file during staging: {Path}. {LockMsg}", item.Path, message);
                     }
                     else
                     {
@@ -149,10 +158,16 @@ public sealed class CleanupExecutor : ICleanupExecutor
             }
             catch (Exception ex) when (IsFileInUseException(ex))
             {
-                const string message = "Skipped because the file is in use by another process.";
+                var message = "Skipped because the file is in use by another process.";
+                var lockInfo = _fileLockInspector.TryGetLockingProcess(item.Path);
+                if (lockInfo is not null)
+                {
+                    message += $" Locked by: {lockInfo.ProcessName} (PID: {lockInfo.ProcessId})";
+                }
+                
                 skippedInUse.Add(new CleanupMessage { Path = item.Path, Message = message });
                 LogFailure(CleanupFailureStage.FileInUse, item.Path, ex, message);
-                _logger.LogWarning(ex, "Skipped in-use file: {Path}", item.Path);
+                _logger.LogWarning(ex, "Skipped in-use file: {Path}. {LockMsg}", item.Path, message);
             }
             catch (Exception ex)
             {

@@ -18,6 +18,7 @@ public sealed class LargeFileFinderViewModel : ViewModelBase
     private readonly ICleanupSimulator _simulator;
     private readonly ICleanupExecutor _executor;
     private readonly IPathSafetyValidator _safetyValidator;
+    private readonly IFileLockInspector _fileLockInspector;
     private readonly ILogger<LargeFileFinderViewModel> _logger;
 
     private string _statusMessage = "Ready. Select a drive and click Scan.";
@@ -41,6 +42,7 @@ public sealed class LargeFileFinderViewModel : ViewModelBase
         ICleanupSimulator simulator,
         ICleanupExecutor executor,
         IPathSafetyValidator safetyValidator,
+        IFileLockInspector fileLockInspector,
         ILogger<LargeFileFinderViewModel> logger)
     {
         _scanner = scanner;
@@ -48,6 +50,7 @@ public sealed class LargeFileFinderViewModel : ViewModelBase
         _simulator = simulator;
         _executor = executor;
         _safetyValidator = safetyValidator;
+        _fileLockInspector = fileLockInspector;
         _logger = logger;
 
         _selectedThreshold = ThresholdOptions[0]; // default 100 MB
@@ -61,6 +64,7 @@ public sealed class LargeFileFinderViewModel : ViewModelBase
         OpenFolderCommand = new RelayCommand<LargeFileItemViewModel>(OpenFolder);
         MoveFileCommand = new AsyncRelayCommand<LargeFileItemViewModel>(MoveFileAsync);
         DeleteCommand = new AsyncRelayCommand(DeleteSelectedAsync, () => !IsScanning && HasSelectedItems);
+        CheckLockCommand = new RelayCommand<LargeFileItemViewModel>(CheckLock);
         ApplyFilterCommand = new RelayCommand(ApplyFilter);
         SortCommand = new ParameterizedRelayCommand(Sort);
 
@@ -191,6 +195,7 @@ public sealed class LargeFileFinderViewModel : ViewModelBase
     public ICommand OpenFolderCommand { get; }
     public ICommand MoveFileCommand { get; }
     public ICommand DeleteCommand { get; }
+    public ICommand CheckLockCommand { get; }
     public ICommand ApplyFilterCommand { get; }
     public ICommand SortCommand { get; }
 
@@ -430,6 +435,24 @@ public sealed class LargeFileFinderViewModel : ViewModelBase
         }
     }
 
+    private void CheckLock(LargeFileItemViewModel? item)
+    {
+        if (item is null)
+        {
+            return;
+        }
+
+        var lockInfo = _fileLockInspector.TryGetLockingProcess(item.Entry.Path);
+        if (lockInfo is not null)
+        {
+            StatusMessage = $"File is locked by: {lockInfo.ProcessName} (PID: {lockInfo.ProcessId})";
+        }
+        else
+        {
+            StatusMessage = "File is not currently locked by any detectable process.";
+        }
+    }
+
     private async Task DeleteSelectedAsync()
     {
         var selectedItems = Results.Where(r => r.IsSelected).ToList();
@@ -529,8 +552,19 @@ public sealed class LargeFileItemViewModel : ViewModelBase
     public bool IsSelected
     {
         get => _isSelected;
-        set => SetProperty(ref _isSelected, value);
+        set
+        {
+            if (Entry.IsProtected && value)
+            {
+                // Silently ignore selection if the file is protected
+                return;
+            }
+            SetProperty(ref _isSelected, value);
+        }
     }
+
+    public bool IsProtected => Entry.IsProtected;
+    public string? ProtectionReason => Entry.ProtectionReason;
 
     public string SizeDisplay => FormatBytes(Entry.SizeBytes);
     public string DateDisplay => Entry.LastModifiedUtc.ToString("yyyy-MM-dd HH:mm");

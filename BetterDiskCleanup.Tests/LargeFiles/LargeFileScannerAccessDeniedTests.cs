@@ -23,7 +23,11 @@ public sealed class LargeFileScannerAccessDeniedTests
         fs.AddFile(Path.Combine(protectedDir, "hidden.sys"), threshold * 2, content: [1, 2, 3]);
 
         var restrictedFs = new AccessDeniedFileSystemGateway(fs, [protectedDir]);
-        var scanner = new LargeFileScanner(restrictedFs, NullLogger<LargeFileScanner>.Instance);
+        var scanner = new LargeFileScanner(
+            restrictedFs, 
+            new NullCriticalFileGuard(),
+            new NullUserExclusionService(),
+            NullLogger<LargeFileScanner>.Instance);
 
         // Act
         var result = await scanner.ScanAsync(root, threshold);
@@ -53,7 +57,11 @@ public sealed class LargeFileScannerAccessDeniedTests
         fs.AddFile(Path.Combine(accessible, "data.zip"), threshold, content: [1, 2, 3]);
 
         var restrictedFs = new AccessDeniedFileSystemGateway(fs, [protected1, protected2]);
-        var scanner = new LargeFileScanner(restrictedFs, NullLogger<LargeFileScanner>.Instance);
+        var scanner = new LargeFileScanner(
+            restrictedFs, 
+            new NullCriticalFileGuard(),
+            new NullUserExclusionService(),
+            NullLogger<LargeFileScanner>.Instance);
 
         // Act
         var result = await scanner.ScanAsync(root, threshold);
