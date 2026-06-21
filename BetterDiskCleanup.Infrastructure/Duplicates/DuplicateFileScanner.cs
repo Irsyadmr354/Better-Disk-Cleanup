@@ -26,15 +26,15 @@ public sealed class DuplicateFileScanner : IDuplicateFileScanner
         _logger = logger;
     }
 
-    public Task<DuplicateScanResult> ScanAsync(
+    public async Task<DuplicateScanResult> ScanAsync(
         string rootPath,
         IProgress<DuplicateScanProgress>? progress = null,
         CancellationToken cancellationToken = default)
     {
-        return Task.Run(() => ScanCore(rootPath, progress, cancellationToken), cancellationToken);
+        return await ScanCoreAsync(rootPath, progress, cancellationToken);
     }
 
-    private DuplicateScanResult ScanCore(
+    private async Task<DuplicateScanResult> ScanCoreAsync(
         string rootPath,
         IProgress<DuplicateScanProgress>? progress,
         CancellationToken cancellationToken)
@@ -79,7 +79,7 @@ public sealed class DuplicateFileScanner : IDuplicateFileScanner
 
         // ── Phase 2: Hash candidates in parallel ────────────────────────────
         var maxDegree = Math.Min(Environment.ProcessorCount, 8);
-        var hashedFiles = HashCandidates(sizeGroups, maxDegree, progress, cancellationToken);
+        var hashedFiles = await HashCandidatesAsync(sizeGroups, maxDegree, progress, cancellationToken);
 
         // Group by hash to find actual duplicates
         var hashGroups = hashedFiles
@@ -213,7 +213,7 @@ public sealed class DuplicateFileScanner : IDuplicateFileScanner
         return allFiles.ToList();
     }
 
-    private List<HashedFile> HashCandidates(
+    private async Task<List<HashedFile>> HashCandidatesAsync(
         List<IGrouping<long, CollectedFile>> sizeGroups,
         int maxDegree,
         IProgress<DuplicateScanProgress>? progress,
@@ -233,7 +233,7 @@ public sealed class DuplicateFileScanner : IDuplicateFileScanner
 
         try
         {
-            Parallel.ForEachAsync(candidates, parallelOptions, (file, ct) =>
+            await Parallel.ForEachAsync(candidates, parallelOptions, (file, ct) =>
             {
                 ct.ThrowIfCancellationRequested();
 
@@ -271,7 +271,7 @@ public sealed class DuplicateFileScanner : IDuplicateFileScanner
                 }
 
                 return ValueTask.CompletedTask;
-            }).GetAwaiter().GetResult();
+            });
         }
         catch (OperationCanceledException)
         {

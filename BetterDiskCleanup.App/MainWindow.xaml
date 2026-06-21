@@ -211,7 +211,7 @@
 
 
             <!-- ===== PAGE: DASHBOARD ===== -->
-            <Grid Visibility="{Binding IsDashboardPage, Converter={StaticResource BoolToVis}}">
+            <Grid Visibility="{Binding IsDashboardPage, Converter={StaticResource BoolToVis}}" Style="{StaticResource PageGridStyle}">
                 <Grid DataContext="{Binding DataContext.DashboardViewModel, RelativeSource={RelativeSource AncestorType=Window}}" Margin="28,24,28,16">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
@@ -282,7 +282,7 @@
                 </Grid>
             </Grid>
             <!-- ===== PAGE: TEMP CLEANUP ===== -->
-            <Grid Visibility="{Binding IsTempPage, Converter={StaticResource BoolToVis}}">
+            <Grid Visibility="{Binding IsTempPage, Converter={StaticResource BoolToVis}}" Style="{StaticResource PageGridStyle}">
                 <Grid DataContext="{Binding DataContext.CleanupViewModel, RelativeSource={RelativeSource AncestorType=Window}}"
                       Margin="28,24,28,16">
                     <Grid.RowDefinitions>
@@ -360,7 +360,7 @@
             </Grid>
 
             <!-- ===== PAGE: BROWSER CLEANUP ===== -->
-            <Grid Visibility="{Binding IsBrowserPage, Converter={StaticResource BoolToVis}}">
+            <Grid Visibility="{Binding IsBrowserPage, Converter={StaticResource BoolToVis}}" Style="{StaticResource PageGridStyle}">
                 <Grid DataContext="{Binding DataContext.BrowserCleanupViewModel, RelativeSource={RelativeSource AncestorType=Window}}"
                       Margin="28,24,28,16">
                     <Grid.RowDefinitions>
@@ -623,7 +623,7 @@
             </Grid>
 
             <!-- ===== PAGE: LARGE FILES ===== -->
-            <Grid Visibility="{Binding IsLargeFilesPage, Converter={StaticResource BoolToVis}}">
+            <Grid Visibility="{Binding IsLargeFilesPage, Converter={StaticResource BoolToVis}}" Style="{StaticResource PageGridStyle}">
                 <Grid DataContext="{Binding DataContext.LargeFileFinderViewModel, RelativeSource={RelativeSource AncestorType=Window}}"
                       Margin="28,24,28,16">
                     <Grid.RowDefinitions>
@@ -724,7 +724,7 @@
             </Grid>
 
             <!-- ===== PAGE: DUPLICATE FINDER ===== -->
-            <Grid Visibility="{Binding IsDuplicatesPage, Converter={StaticResource BoolToVis}}">
+            <Grid Visibility="{Binding IsDuplicatesPage, Converter={StaticResource BoolToVis}}" Style="{StaticResource PageGridStyle}">
                 <Grid DataContext="{Binding DataContext.DuplicateFinderViewModel, RelativeSource={RelativeSource AncestorType=Window}}"
                       Margin="28,24,28,16">
                     <Grid.RowDefinitions>
@@ -879,7 +879,7 @@
             </Grid>
 
             <!-- ===== PAGE: STARTUP MANAGER ===== -->
-            <Grid Visibility="{Binding IsStartupPage, Converter={StaticResource BoolToVis}}">
+            <Grid Visibility="{Binding IsStartupPage, Converter={StaticResource BoolToVis}}" Style="{StaticResource PageGridStyle}">
                 <Grid DataContext="{Binding DataContext.StartupManagerViewModel, RelativeSource={RelativeSource AncestorType=Window}}"
                       Margin="28,24,28,16">
                     <Grid.RowDefinitions>
@@ -966,7 +966,7 @@
             </Grid>
 
             <!-- ===== PAGE: STORAGE ANALYZER ===== -->
-            <Grid Visibility="{Binding IsStorageAnalyzerPage, Converter={StaticResource BoolToVis}}">
+            <Grid Visibility="{Binding IsStorageAnalyzerPage, Converter={StaticResource BoolToVis}}" Style="{StaticResource PageGridStyle}">
                 <Grid DataContext="{Binding DataContext.StorageAnalyzerViewModel, RelativeSource={RelativeSource AncestorType=Window}}"
                       Margin="20,18,20,12">
                     <Grid.ColumnDefinitions>
@@ -1114,7 +1114,7 @@
 
 
             <!-- ===== PAGE: REPORTS ===== -->
-            <Grid Visibility="{Binding IsReportsPage, Converter={StaticResource BoolToVis}}">
+            <Grid Visibility="{Binding IsReportsPage, Converter={StaticResource BoolToVis}}" Style="{StaticResource PageGridStyle}">
                 <Grid DataContext="{Binding DataContext.ReportsViewModel, RelativeSource={RelativeSource AncestorType=Window}}" Margin="28,24,28,16">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
@@ -1137,7 +1137,7 @@
             </Grid>
 
             <!-- ===== PAGE: SETTINGS ===== -->
-            <Grid Visibility="{Binding IsSettingsPage, Converter={StaticResource BoolToVis}}">
+            <Grid Visibility="{Binding IsSettingsPage, Converter={StaticResource BoolToVis}}" Style="{StaticResource PageGridStyle}">
                 <Grid DataContext="{Binding DataContext.SettingsViewModel, RelativeSource={RelativeSource AncestorType=Window}}" Margin="28,24,28,16">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />

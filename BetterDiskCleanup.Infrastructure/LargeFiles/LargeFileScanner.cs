@@ -69,16 +69,16 @@ public sealed class LargeFileScanner : ILargeFileScanner
         }
     }
 
-    public Task<LargeFileScanResult> ScanAsync(
+    public async Task<LargeFileScanResult> ScanAsync(
         string rootPath,
         long thresholdBytes,
         IProgress<LargeFileScanProgress>? progress = null,
         CancellationToken cancellationToken = default)
     {
-        return Task.Run(() => ScanCore(rootPath, thresholdBytes, progress, cancellationToken), cancellationToken);
+        return await ScanCoreAsync(rootPath, thresholdBytes, progress, cancellationToken);
     }
 
-    private LargeFileScanResult ScanCore(
+    private async Task<LargeFileScanResult> ScanCoreAsync(
         string rootPath,
         long thresholdBytes,
         IProgress<LargeFileScanProgress>? progress,
@@ -173,13 +173,13 @@ public sealed class LargeFileScanner : ILargeFileScanner
                     CancellationToken = cancellationToken
                 };
 
-                Parallel.ForEachAsync(batch, parallelOptions, (directory, ct) =>
+                await Parallel.ForEachAsync(batch, parallelOptions, (directory, ct) =>
                 {
                     ct.ThrowIfCancellationRequested();
                     ProcessDirectory(directory, thresholdBytes, entries, warnings,
                         filesFoundCounter, bytesScannedCounter, dirsScannedCounter, progress);
                     return ValueTask.CompletedTask;
-                }).GetAwaiter().GetResult();
+                });
             }
             catch (OperationCanceledException)
             {
