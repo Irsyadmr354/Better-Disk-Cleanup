@@ -124,7 +124,7 @@ static async Task CleanTempAsync(ITempFileScanner tempScanner, IBrowserDataScann
 
 static void ListRecovery(IRecoveryService recoveryService)
 {
-    var sessions = recoveryService.GetAvailableSessions();
+    var sessions = recoveryService.ListSessions();
     Console.WriteLine($"Found {sessions.Count} recovery sessions:");
     foreach (var session in sessions.OrderByDescending(s => s.CreatedAtUtc))
     {
@@ -139,7 +139,14 @@ static async Task RestoreRecoveryAsync(IRecoveryService recoveryService, string 
 {
     Console.WriteLine($"Restoring session: {sessionId}...");
     var report = await recoveryService.RestoreSessionAsync(sessionId);
-    Console.WriteLine($"Restore complete. Restored: {report.FilesRestored}, Errors: {report.Errors.Count}. Space occupied: {FormatBytes(report.SpaceRestoredBytes)}");
+    var restored = report.Items.Count(i => i.Restored);
+    var skipped = report.Items.Count(i => i.Skipped);
+    var failed = report.Items.Count(i => !i.Restored && !i.Skipped);
+    Console.WriteLine($"Restore complete. Restored: {restored}, Skipped: {skipped}, Failed: {failed}.");
+    foreach (var item in report.Items.Where(i => !i.Restored && !i.Skipped))
+    {
+        Console.WriteLine($"  FAILED: {item.OriginalPath} — {item.Message}");
+    }
 }
 
 static string FormatBytes(long bytes)

@@ -19,6 +19,7 @@ public sealed class CleanupExecutor : ICleanupExecutor
     private readonly IRecoveryOptions _recoveryOptions;
     private readonly ICleanupFailureDetailLogger _failureDetailLogger;
     private readonly IFileLockInspector _fileLockInspector;
+    private readonly ICriticalFileGuard _criticalFileGuard;
     private readonly ILogger<CleanupExecutor> _logger;
 
     public CleanupExecutor(
@@ -28,6 +29,7 @@ public sealed class CleanupExecutor : ICleanupExecutor
         IOptions<RecoveryOptions> recoveryOptions,
         ICleanupFailureDetailLogger failureDetailLogger,
         IFileLockInspector fileLockInspector,
+        ICriticalFileGuard criticalFileGuard,
         ILogger<CleanupExecutor> logger)
     {
         _safetyValidator = safetyValidator;
@@ -36,6 +38,7 @@ public sealed class CleanupExecutor : ICleanupExecutor
         _recoveryOptions = new RecoveryOptionsAdapter(recoveryOptions);
         _failureDetailLogger = failureDetailLogger;
         _fileLockInspector = fileLockInspector;
+        _criticalFileGuard = criticalFileGuard;
         _logger = logger;
     }
 
@@ -89,6 +92,19 @@ public sealed class CleanupExecutor : ICleanupExecutor
                     item.Path,
                     exception: null,
                     additionalContext: validation.Reason);
+                continue;
+            }
+
+            var criticalCheck = _criticalFileGuard.Check(item.Path);
+            if (criticalCheck.IsCritical)
+            {
+                var message = $"Skipped delete because file is critical: {criticalCheck.Reason}";
+                warnings.Add(new CleanupMessage { Path = item.Path, Message = message });
+                LogFailure(
+                    CleanupFailureStage.SafetyRevalidation,
+                    item.Path,
+                    exception: null,
+                    additionalContext: criticalCheck.Reason);
                 continue;
             }
 
