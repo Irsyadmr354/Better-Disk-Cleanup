@@ -10,6 +10,8 @@ public interface IFileSystemGateway
 
     DateTime GetLastWriteTimeUtc(string path);
 
+    DateTime GetCreationTimeUtc(string path);
+
     FileAttributes GetAttributes(string path);
 
     void ClearReadOnlyAttribute(string path);

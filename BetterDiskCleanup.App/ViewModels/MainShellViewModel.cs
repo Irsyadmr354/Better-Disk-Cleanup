@@ -7,16 +7,26 @@ public sealed class MainShellViewModel : ViewModelBase
     private int _selectedIndex;
 
     public MainShellViewModel(
+        DashboardViewModel dashboardViewModel,
         MainViewModel cleanupViewModel,
-        RecoveryHistoryViewModel recoveryHistoryViewModel,
         BrowserCleanupViewModel browserCleanupViewModel,
         LargeFileFinderViewModel largeFileFinderViewModel,
+        DuplicateFinderViewModel duplicateFinderViewModel,
+        StartupManagerViewModel startupManagerViewModel,
+        StorageAnalyzerViewModel storageAnalyzerViewModel,
+        ReportsViewModel reportsViewModel,
+        SettingsViewModel settingsViewModel,
         LogStore logStore)
     {
+        DashboardViewModel = dashboardViewModel;
         CleanupViewModel = cleanupViewModel;
-        RecoveryHistoryViewModel = recoveryHistoryViewModel;
         BrowserCleanupViewModel = browserCleanupViewModel;
         LargeFileFinderViewModel = largeFileFinderViewModel;
+        DuplicateFinderViewModel = duplicateFinderViewModel;
+        StartupManagerViewModel = startupManagerViewModel;
+        StorageAnalyzerViewModel = storageAnalyzerViewModel;
+        ReportsViewModel = reportsViewModel;
+        SettingsViewModel = settingsViewModel;
         LogStore = logStore;
         SelectPageCommand = new ParameterizedRelayCommand(
             p => SelectedIndex = int.TryParse(p?.ToString(), out var i) ? i : 0);
@@ -28,13 +38,23 @@ public sealed class MainShellViewModel : ViewModelBase
         ClearLogCommand = new RelayCommand(() => logStore.Clear());
     }
 
-    public MainViewModel CleanupViewModel { get; }
+    public DashboardViewModel DashboardViewModel { get; }
 
-    public RecoveryHistoryViewModel RecoveryHistoryViewModel { get; }
+    public MainViewModel CleanupViewModel { get; }
 
     public BrowserCleanupViewModel BrowserCleanupViewModel { get; }
 
     public LargeFileFinderViewModel LargeFileFinderViewModel { get; }
+
+    public DuplicateFinderViewModel DuplicateFinderViewModel { get; }
+
+    public StartupManagerViewModel StartupManagerViewModel { get; }
+
+    public StorageAnalyzerViewModel StorageAnalyzerViewModel { get; }
+
+    public ReportsViewModel ReportsViewModel { get; }
+
+    public SettingsViewModel SettingsViewModel { get; }
 
     public LogStore LogStore { get; }
 
@@ -50,18 +70,28 @@ public sealed class MainShellViewModel : ViewModelBase
         {
             if (SetProperty(ref _selectedIndex, value))
             {
+                OnPropertyChanged(nameof(IsDashboardPage));
                 OnPropertyChanged(nameof(IsTempPage));
                 OnPropertyChanged(nameof(IsBrowserPage));
-                OnPropertyChanged(nameof(IsRecoveryPage));
                 OnPropertyChanged(nameof(IsLargeFilesPage));
+                OnPropertyChanged(nameof(IsDuplicatesPage));
+                OnPropertyChanged(nameof(IsStartupPage));
+                OnPropertyChanged(nameof(IsStorageAnalyzerPage));
+                OnPropertyChanged(nameof(IsReportsPage));
+                OnPropertyChanged(nameof(IsSettingsPage));
             }
         }
     }
 
-    public bool IsTempPage => _selectedIndex == 0;
-    public bool IsBrowserPage => _selectedIndex == 1;
-    public bool IsRecoveryPage => _selectedIndex == 2;
+    public bool IsDashboardPage => _selectedIndex == 0;
+    public bool IsTempPage => _selectedIndex == 1;
+    public bool IsBrowserPage => _selectedIndex == 2;
     public bool IsLargeFilesPage => _selectedIndex == 3;
+    public bool IsDuplicatesPage => _selectedIndex == 4;
+    public bool IsStartupPage => _selectedIndex == 5;
+    public bool IsStorageAnalyzerPage => _selectedIndex == 6;
+    public bool IsReportsPage => _selectedIndex == 7;
+    public bool IsSettingsPage => _selectedIndex == 8;
 
     public ICommand SelectPageCommand { get; }
 }

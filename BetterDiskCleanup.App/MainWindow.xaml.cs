@@ -1,4 +1,6 @@
-﻿using BetterDiskCleanup.App.ViewModels;
+using BetterDiskCleanup.App.Controls;
+using BetterDiskCleanup.App.ViewModels;
+using BetterDiskCleanup.Core.StorageAnalyzer;
 using System.Collections.Specialized;
 using System.Windows;
 using System.Windows.Controls;
@@ -12,8 +14,6 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         DataContext = shellViewModel;
-        Loaded += async (_, _) => await shellViewModel.RecoveryHistoryViewModel.RefreshAsync();
-
         // Auto-scroll log to bottom when new entries are added
         shellViewModel.LogStore.Entries.CollectionChanged += (_, e) =>
         {
@@ -70,6 +70,22 @@ public partial class MainWindow : Window
         {
             WindowState = WindowState.Maximized;
             MaximizeBtn.Content = "❐";
+        }
+    }
+
+    private void ToggleGroupExpand(object sender, MouseButtonEventArgs e)
+    {
+        if (sender is System.Windows.FrameworkElement { DataContext: DuplicateGroupViewModel group })
+        {
+            group.IsExpanded = !group.IsExpanded;
+        }
+    }
+
+    private void TreemapItemClicked(object sender, RoutedEventArgs<FolderNode> e)
+    {
+        if (DataContext is MainShellViewModel shell)
+        {
+            shell.StorageAnalyzerViewModel.NavigateCommand.Execute(e.Data);
         }
     }
 }

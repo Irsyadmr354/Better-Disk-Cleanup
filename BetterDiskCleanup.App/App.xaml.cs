@@ -1,4 +1,4 @@
-﻿using BetterDiskCleanup.App.ViewModels;
+using BetterDiskCleanup.App.ViewModels;
 using BetterDiskCleanup.Core.Recovery;
 using BetterDiskCleanup.Infrastructure;
 using Microsoft.Extensions.Configuration;
@@ -94,6 +94,12 @@ public partial class App : Application
                     services.AddTransient<RecoveryHistoryViewModel>();
                     services.AddTransient<BrowserCleanupViewModel>();
                     services.AddTransient<LargeFileFinderViewModel>();
+                    services.AddTransient<DuplicateFinderViewModel>();
+                    services.AddTransient<StartupManagerViewModel>();
+                    services.AddTransient<StorageAnalyzerViewModel>();
+                    services.AddTransient<DashboardViewModel>();
+                    services.AddTransient<ReportsViewModel>();
+                    services.AddTransient<SettingsViewModel>();
                     services.AddTransient<MainShellViewModel>();
                     services.AddSingleton<MainWindow>();
                 })

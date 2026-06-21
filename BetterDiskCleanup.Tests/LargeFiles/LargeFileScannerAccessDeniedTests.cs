@@ -92,6 +92,7 @@ public sealed class LargeFileScannerAccessDeniedTests
         public bool FileExists(string path) => _inner.FileExists(path);
         public long GetFileSize(string path) { ThrowIfRestricted(path); return _inner.GetFileSize(path); }
         public DateTime GetLastWriteTimeUtc(string path) => _inner.GetLastWriteTimeUtc(path);
+        public DateTime GetCreationTimeUtc(string path) => _inner.GetCreationTimeUtc(path);
         public FileAttributes GetAttributes(string path) => _inner.GetAttributes(path);
         public void ClearReadOnlyAttribute(string path) => _inner.ClearReadOnlyAttribute(path);
         public void CreateDirectory(string path) => _inner.CreateDirectory(path);

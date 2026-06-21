@@ -4,6 +4,101 @@
     "C:\\Users\\Royan\\Documents\\Better Disk Cleanup\\BetterDiskCleanup.Tests\\BetterDiskCleanup.Tests.csproj": {}
   },
   "projects": {
+    "C:\\Users\\Royan\\Documents\\Better Disk Cleanup\\BetterDiskCleanup.App\\BetterDiskCleanup.App.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\Royan\\Documents\\Better Disk Cleanup\\BetterDiskCleanup.App\\BetterDiskCleanup.App.csproj",
+        "projectName": "BetterDiskCleanup.App",
+        "projectPath": "C:\\Users\\Royan\\Documents\\Better Disk Cleanup\\BetterDiskCleanup.App\\BetterDiskCleanup.App.csproj",
+        "packagesPath": "C:\\Users\\Royan\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Royan\\Documents\\Better Disk Cleanup\\BetterDiskCleanup.App\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\Royan\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0-windows10.0.17763.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0-windows10.0.17763": {
+            "targetAlias": "net8.0-windows10.0.17763.0",
+            "projectReferences": {
+              "C:\\Users\\Royan\\Documents\\Better Disk Cleanup\\BetterDiskCleanup.Core\\BetterDiskCleanup.Core.csproj": {
+                "projectPath": "C:\\Users\\Royan\\Documents\\Better Disk Cleanup\\BetterDiskCleanup.Core\\BetterDiskCleanup.Core.csproj"
+              },
+              "C:\\Users\\Royan\\Documents\\Better Disk Cleanup\\BetterDiskCleanup.Infrastructure\\BetterDiskCleanup.Infrastructure.csproj": {
+                "projectPath": "C:\\Users\\Royan\\Documents\\Better Disk Cleanup\\BetterDiskCleanup.Infrastructure\\BetterDiskCleanup.Infrastructure.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "net8.0-windows10.0.17763": {
+          "targetAlias": "net8.0-windows10.0.17763.0",
+          "dependencies": {
+            "Microsoft.Extensions.Hosting": {
+              "target": "Package",
+              "version": "[8.0.1, )"
+            },
+            "Serilog.Extensions.Hosting": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Serilog.Sinks.Console": {
+              "target": "Package",
+              "version": "[6.0.0, )"
+            },
+            "Serilog.Sinks.File": {
+              "target": "Package",
+              "version": "[6.0.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.Windows.SDK.NET.Ref",
+              "version": "[10.0.17763.56, 10.0.17763.56]"
+            }
+          ],
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            },
+            "Microsoft.Windows.SDK.NET.Ref": {
+              "privateAssets": "all"
+            },
+            "Microsoft.WindowsDesktop.App.WPF": {
+              "privateAssets": "none"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.422/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
     "C:\\Users\\Royan\\Documents\\Better Disk Cleanup\\BetterDiskCleanup.Core\\BetterDiskCleanup.Core.csproj": {
       "version": "1.0.0",
       "restore": {
@@ -75,14 +170,14 @@
           "C:\\Users\\Royan\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
-          "net8.0"
+          "net8.0-windows10.0.17763.0"
         ],
         "sources": {
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
-          "net8.0": {
-            "targetAlias": "net8.0",
+          "net8.0-windows10.0.17763": {
+            "targetAlias": "net8.0-windows10.0.17763.0",
             "projectReferences": {
               "C:\\Users\\Royan\\Documents\\Better Disk Cleanup\\BetterDiskCleanup.Core\\BetterDiskCleanup.Core.csproj": {
                 "projectPath": "C:\\Users\\Royan\\Documents\\Better Disk Cleanup\\BetterDiskCleanup.Core\\BetterDiskCleanup.Core.csproj"
@@ -102,10 +197,14 @@
         }
       },
       "frameworks": {
-        "net8.0": {
-          "targetAlias": "net8.0",
+        "net8.0-windows10.0.17763": {
+          "targetAlias": "net8.0-windows10.0.17763.0",
           "dependencies": {
             "Microsoft.Extensions.DependencyInjection": {
+              "target": "Package",
+              "version": "[8.0.1, )"
+            },
+            "Microsoft.Extensions.Hosting.Abstractions": {
               "target": "Package",
               "version": "[8.0.1, )"
             },
@@ -116,6 +215,10 @@
             "Microsoft.Extensions.Options": {
               "target": "Package",
               "version": "[8.0.2, )"
+            },
+            "Microsoft.Toolkit.Uwp.Notifications": {
+              "target": "Package",
+              "version": "[7.1.3, )"
             }
           },
           "imports": [
@@ -129,8 +232,17 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.Windows.SDK.NET.Ref",
+              "version": "[10.0.17763.56, 10.0.17763.56]"
+            }
+          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            },
+            "Microsoft.Windows.SDK.NET.Ref": {
               "privateAssets": "all"
             }
           },
@@ -151,15 +263,18 @@
           "C:\\Users\\Royan\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
-          "net8.0"
+          "net8.0-windows10.0.17763.0"
         ],
         "sources": {
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
-          "net8.0": {
-            "targetAlias": "net8.0",
+          "net8.0-windows10.0.17763": {
+            "targetAlias": "net8.0-windows10.0.17763.0",
             "projectReferences": {
+              "C:\\Users\\Royan\\Documents\\Better Disk Cleanup\\BetterDiskCleanup.App\\BetterDiskCleanup.App.csproj": {
+                "projectPath": "C:\\Users\\Royan\\Documents\\Better Disk Cleanup\\BetterDiskCleanup.App\\BetterDiskCleanup.App.csproj"
+              },
               "C:\\Users\\Royan\\Documents\\Better Disk Cleanup\\BetterDiskCleanup.Core\\BetterDiskCleanup.Core.csproj": {
                 "projectPath": "C:\\Users\\Royan\\Documents\\Better Disk Cleanup\\BetterDiskCleanup.Core\\BetterDiskCleanup.Core.csproj"
               },
@@ -181,8 +296,8 @@
         }
       },
       "frameworks": {
-        "net8.0": {
-          "targetAlias": "net8.0",
+        "net8.0-windows10.0.17763": {
+          "targetAlias": "net8.0-windows10.0.17763.0",
           "dependencies": {
             "Microsoft.Extensions.DependencyInjection": {
               "target": "Package",
@@ -203,6 +318,10 @@
             "Microsoft.NET.Test.Sdk": {
               "target": "Package",
               "version": "[17.8.0, )"
+            },
+            "Moq": {
+              "target": "Package",
+              "version": "[4.20.72, )"
             },
             "coverlet.collector": {
               "target": "Package",
@@ -228,9 +347,21 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.Windows.SDK.NET.Ref",
+              "version": "[10.0.17763.56, 10.0.17763.56]"
+            }
+          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
+            },
+            "Microsoft.Windows.SDK.NET.Ref": {
+              "privateAssets": "all"
+            },
+            "Microsoft.WindowsDesktop.App.WPF": {
+              "privateAssets": "none"
             }
           },
           "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.422/PortableRuntimeIdentifierGraph.json"

@@ -8,6 +8,7 @@
             <!-- Converters -->
             <BooleanToVisibilityConverter x:Key="BoolToVis" />
             <conv:EqualityConverter x:Key="EqualityConverter" />
+            <conv:InvertBoolConverter x:Key="InvertBool" />
 
             <!-- ===== COLOR PALETTE ===== -->
             <Color x:Key="BgDeepColor">#0F1117</Color>

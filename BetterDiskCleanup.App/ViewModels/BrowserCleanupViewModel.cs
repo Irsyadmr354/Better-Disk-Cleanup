@@ -28,6 +28,9 @@ public sealed class BrowserCleanupViewModel : ViewModelBase
     private CleanupSimulationResult? _simulationResult;
     private CleanupReport? _cleanupReport;
 
+    public long LastRecoverableBytes => _scanResult?.TotalSizeBytes ?? 0;
+    public int LastJunkFileCount => _scanResult?.Entries.Sum(e => e.Files.Count) ?? 0;
+
     public BrowserCleanupViewModel(
         IBrowserDetector browserDetector,
         IBrowserDataScanner browserDataScanner,

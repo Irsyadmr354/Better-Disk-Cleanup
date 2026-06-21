@@ -1,9 +1,9 @@
-# Handoff Summary — Better Disk Cleanup (Fase 0–3B Complete)
+# Handoff Summary — Better Disk Cleanup (Fase 0–3D Complete)
 
 ## Project Info
 - **Solution path:** `C:\Users\Royan\Documents\Better Disk Cleanup`
 - **Tech stack:** C# .NET 8, WPF, Clean Architecture + MVVM, Microsoft.Extensions.Hosting, Serilog, xUnit
-- **Status:** Fase 0–3B selesai, 90/90 tests PASS
+- **Status:** Fase 0–3D selesai, 135/135 tests PASS
 - **Runtime:** Requires Administrator privileges (auto-elevates via UAC on startup)
 
 ---
@@ -28,7 +28,7 @@
 - Manifest JSON dengan SHA-256 hash, restore per-session/per-item, retention 30 hari configurable
 - Manual verification (restore, konflik path, purge) belum sempat dilakukan user
 
-### Fase 3A — Browser Cleanup Module (baru selesai)
+### Fase 3A — Browser Cleanup Module
 
 **Core interfaces** (`BetterDiskCleanup.Core/Browsers/`):
 - `IBrowserDetector` — deteksi browser + semua profile (Chrome, Brave, Edge, Firefox, Opera, Vivaldi)
@@ -54,7 +54,7 @@
 - ServiceWorker/Sessions = `Recommended` (auto-select)
 - Cookies/History = `Advanced` (manual only — berisi login sessions & browsing history, irreplaceable)
 
-### Fase 3B — Large File Finder (baru selesai)
+### Fase 3B — Large File Finder
 
 **Core interfaces** (`BetterDiskCleanup.Core/LargeFiles/`):
 - `ILargeFileScanner` — scan drive/folder untuk file besar dengan threshold configurable
@@ -106,6 +106,113 @@
 - Handle `dotnet run` scenario: detect kalau host adalah `dotnet.exe`, restart pakai `dotnet.exe "path/to/dll"`
 - Graceful fallback kalau UAC cancelled → MessageBox dengan instruksi manual
 
+### Fase 3C — Duplicate File Finder (baru selesai)
+
+**Core interfaces & models** (`BetterDiskCleanup.Core/Duplicates/`):
+- `IDuplicateFileScanner` — scan folder/drive untuk duplikat dengan strategi 2 tahap (size grouping → SHA256 hashing)
+- `IDuplicateSelectionStrategy` — interface untuk strategi seleksi file mana yang dihapus (KeepNewest/KeepOldest/KeepOriginal/Manual)
+- `DuplicateFileEntry` — model per file: path, fileName, sizeBytes, lastModifiedUtc, createdUtc
+- `DuplicateGroup` — kelompok duplikat: hash, fileSizeBytes, members list, locationType (SameFolderDifferentName / DifferentFolder), recoverableBytes
+- `DuplicateScanProgress` — progress DTO: totalFilesFound, sameSizeCandidates, filesHashed, duplicateGroupsFound
+- `DuplicateScanResult` — hasil scan: groups, warnings, totalRecoverableBytes, totalDuplicateFiles
+- `SelectionStrategyType` — enum: KeepNewest, KeepOldest, KeepOriginal, Manual
+- `DuplicateLocationType` — enum: SameFolderDifferentName, DifferentFolder
+
+**Detection strategy (2-phase):**
+- **Phase 1 — Group by size:** file dengan ukuran berbeda pasti bukan duplikat → eliminasi cepat tanpa hashing (~90% files eliminated)
+- **Phase 2 — Hash candidates:** SHA256 paralel via `Parallel.ForEachAsync` cap `min(Processors, 8)` hanya untuk file dengan ukuran sama
+- BFS directory traversal (reuse pattern dari LargeFileScanner)
+- Skip empty files (size == 0)
+- Skip reparse points
+- `IProgress<DuplicateScanProgress>` untuk report progress (files found, candidates, hashing progress)
+- Optional partial-hash helper (`ComputePartialHash`) untuk future optimization (hash 64KB pertama sebagai quick filter)
+
+**Selection strategies** (`BetterDiskCleanup.Infrastructure/Duplicates/`):
+- `KeepNewestStrategy` — keep file dengan `LastModifiedUtc` paling baru, delete sisanya
+- `KeepOldestStrategy` — keep file dengan `CreatedUtc` paling lama, delete sisanya
+- `KeepOriginalStrategy` — heuristik: prefer file yang TIDAK di folder transient (Downloads/Temp/Cache/AppData) → shortest path → oldest CreatedUtc sebagai tiebreaker. `TransientFolderNames` configurable di class.
+- `ManualStrategy` — return empty, user pilih sendiri per file
+- Semua strategi WAJIB leave minimal 1 file alive per group
+
+**Safety: At Least 1 Survivor Per Group (3-layer enforcement):**
+1. `IDuplicateSelectionStrategy.SelectForDeletion()` — strategi tidak pernah return semua members
+2. `DuplicateDeletionValidator.EnsureMinimumOneSurvivor()` — validasi + koreksi sebelum kirim ke executor. Kalau semua selected → un-select newest sebagai survivor
+3. ViewModel (`DuplicateFinderViewModel`) — show MessageBox kalau koreksi terjadi, sebelum konfirmasi delete
+
+**IFileSystemGateway modification:**
+- Tambah `GetCreationTimeUtc(string path)` — diperlukan untuk KeepOldest/KeepOriginal strategy
+- Implementasi di `FileSystemGateway`, `InMemoryFileSystemGateway`, `TrackingFileSystemGateway`, `AccessDeniedFileSystemGateway` (test)
+
+**UI** (`BetterDiskCleanup.App/`):
+- `DuplicateFinderViewModel` — tab baru "Duplicates" (index 4) di MainWindow
+- Folder path input + Scan/Cancel
+- Expandable group display: klik header untuk expand/collapse, lihat individual files
+- Strategy dropdown (KeepNewest/Oldest/Original/Manual) yang langsung re-apply selection ke semua group
+- Per-file checkbox selection dengan PropertyChanged subscription → DeleteCommand state
+- Delete via `DuplicateDeletionValidator` → `ICleanupExecutor` → masuk Recovery System (Fase 2)
+- Confirmation dialog sebelum delete, menampilkan jumlah file + total size
+- Post-delete: remove deleted items from groups, remove groups dengan ≤1 member
+- `DuplicateGroupViewModel` — header menampilkan member count, file size, recoverable bytes, hash prefix, location type
+- `DuplicateMemberViewModel` — checkbox, filename, size, modified date, location
+
+**Delete flow:**
+1. Collect selected paths dari semua groups
+2. `DuplicateDeletionValidator.EnsureMinimumOneSurvivor()` — koreksi kalau semua anggota group selected
+3. Build `ScanResult` dengan `RiskLevel.Safe` per item
+4. `ICleanupExecutor.ExecuteAsync()` → safety re-validation → recovery staging → delete
+5. Update UI: remove deleted items, collapse empty groups
+
+### Fase 3D — Startup Manager (baru selesai)
+
+**Core interfaces & models** (`BetterDiskCleanup.Core/StartupManager/`):
+- `IStartupScanner` — scan registry, startup folder, dan scheduled tasks untuk menemukan startup entry
+- `IStartupImpactEstimator` — estimasi impact (Low/Medium/High) berdasarkan heuristik transparan
+- `IStartupEntrySafetyValidator` — validasi apakah entry protected (Microsoft-signed + system dir)
+- `IStartupChangeRecoveryService` — snapshot/undo/restore untuk perubahan startup entry
+- `IStartupEntryManager` — orchestrator Enable/Disable/Remove dengan safety + recovery
+- `StartupEntry` — model per entry: Name, Publisher, FilePath, Status, Source, Impact, IsProtected
+- `StartupEntrySource` — enum: StartupFolder, Registry, ScheduledTask
+- `StartupEntryStatus` — enum: Enabled, Disabled
+- `StartupImpactLevel` — enum: Low, Medium, High
+- `StartupChangeAction` — enum: Enable, Disable, Remove
+- `StartupChangeRecord` — record perubahan: ChangeId, Action, SnapshotBefore, IsUndone
+- `StartupEntrySnapshot` — immutable snapshot state sebelum perubahan
+
+**Infrastructure** (`BetterDiskCleanup.Infrastructure/StartupManager/`):
+- `StartupScanner` — scan HKCU/HKLM Run/RunOnce, user/all-users Startup folder, scheduled tasks via COM
+- `ComScheduledTaskReader` — COM interop `Schedule.Service` untuk enumerate task dengan logon/boot trigger
+- `FileSignatureHelper` — extract publisher, cek signature Microsoft, resolve shortcut target
+- `StartupEntrySafetyValidator` — Protected = Microsoft-signed AND di System32/SysWOW64/Windows\
+- `StartupImpactEstimator` — High: >5MB atau unsigned, Medium: 1–5MB signed, Low: <1MB signed
+- `StartupChangeRecoveryService` — backup registry values, task XML, shortcut bytes; persist history JSON
+- `StartupEntryManager` — Disable: pindah value ke backup key; Enable: restore dari backup; Remove: delete + snapshot
+
+**Safety: Protected Entry (2-layer enforcement):**
+- `IStartupEntrySafetyValidator.IsProtected()` — Microsoft-signed AND di system directory
+- `ValidateActionAllowed()` — throw `InvalidOperationException` kalau Disable/Remove pada Protected entry
+- UI: Toggle/Remove buttons di-disable via `InvertBoolConverter`, tapi validasi juga di service level
+
+**Disable approach ("pindah ke backup key", bukan langsung hapus):**
+- Registry: value dipindah ke `HKCU\Software\BetterDiskCleanup\StartupBackup\{valueName}`, original dihapus
+- Scheduled Task: pakai native `task.Enabled = false` API (reversible tanpa backup)
+- Startup Folder: shortcut `.lnk` dipindah ke `%TEMP%\BetterDiskCleanup\StartupBackup\`
+- Ini supaya Disable reversible tanpa kehilangan data asli (command line string, task definition)
+
+**Recovery System (terpisah dari Fase 2):**
+- `IStartupChangeRecoveryService` — khusus untuk registry/task/shortcut, bukan file biasa
+- `CreateSnapshot()` — simpan state sebelum perubahan
+- `UndoLastChangeAsync()` — undo perubahan terakhir yang belum di-undo
+- `RestoreFromHistoryAsync(changeId)` — restore perubahan spesifik
+- History disimpan sebagai JSON di `%LocalAppData%\BetterDiskCleanup\startup-change-history.json`
+
+**UI** (`BetterDiskCleanup.App/`):
+- `StartupManagerViewModel` — tab baru "Startup Manager" (index 5) di MainWindow
+- Scan startup entries → tampil tabel: Name, Publisher, Path, Status, Impact, Source, Actions
+- Toggle switch (Enable/Disable) per row — Protected entry: buttons disabled
+- Remove dengan konfirmasi — snapshot tetap disimpan
+- Undo Last Change button
+- `InvertBoolConverter` — converter baru untuk `IsProtected → IsEnabled` binding
+
 ---
 
 ## Post-Fase 3B Fixes
@@ -154,6 +261,20 @@
 - **Fix:** `LogStore` now buffers entries in a `List<string>` (protected by lock) and flushes all buffered entries in a **single** `Dispatcher.BeginInvoke` call. Only one dispatcher operation is ever pending.
 - **Safety net:** `MainWindow.xaml.cs` auto-scroll now wraps `ScrollIntoView` in try-catch to ignore transient layout exceptions.
 
+### Full Project Audit — 3 UI State Bugs Fixed
+
+**Bug 1: BrowserCleanupViewModel — Preview/Clean buttons stale on checkbox toggle**
+- **Root cause:** `PreviewCommand` and `CleanCommand` use `HasSelectedItems` in `canExecute`, but toggling a `BrowserDataEntryViewModel.IsSelected` checkbox never raised `CanExecuteChanged`.
+- **Fix:** Subscribe to each `BrowserDataEntryViewModel.PropertyChanged`; when `IsSelected` changes, call `RaiseCanExecuteChanged()` on both commands.
+
+**Bug 2: LargeFileFinderViewModel — Delete button stale on item selection**
+- **Root cause:** Same pattern — `DeleteCommand` depends on `HasSelectedItems`, but checking/unchecking a `LargeFileItemViewModel` never notified the command.
+- **Fix:** Subscribe to each `LargeFileItemViewModel.PropertyChanged`; when `IsSelected` changes, call `RaiseCanExecuteChanged()` on `DeleteCommand`.
+
+**Bug 3: RecoverySessionViewModel — Expired sessions displayed as "Active"**
+- **Root cause:** Manifest stores `Status = Active` but expiration (`ExpiresAtUtc`) is a separate field. The ViewModel displayed the raw manifest status, so expired sessions still showed "Active" with clickable Restore/Purge buttons.
+- **Fix:** Compute effective status in constructor and `RefreshAsync`: `if (Status == Active && ExpiresAtUtc <= Now) → Expired`. The `RestoreSessionCommand`/`PurgeSessionCommand` canExecute already checks `Status == Active`, so expired sessions correctly disable those buttons.
+
 ---
 
 ## Fix Urgent yang Sudah Dilakukan (Sebelum Fase 3A)
@@ -173,45 +294,70 @@
 
 ---
 
-## Struktur Project (File yang Baru/Diubah Post-Fase 3B)
+## Struktur Project (File yang Baru/Diubah Post-Fase 3C)
 
 ```
 BetterDiskCleanup.Core/
+├── Duplicates/                                    [NEW - Fase 3C]
+│   ├── IDuplicateFileScanner.cs                   [NEW]
+│   ├── IDuplicateSelectionStrategy.cs             [NEW]
+│   ├── DuplicateFileEntry.cs                      [NEW]
+│   ├── DuplicateGroup.cs                          [NEW]
+│   ├── DuplicateLocationType.cs                   [NEW]
+│   ├── DuplicateScanProgress.cs                   [NEW]
+│   ├── DuplicateScanResult.cs                     [NEW]
+│   └── SelectionStrategyType.cs                   [NEW]
 ├── Filesystem/
-│   └── IFileSystemGateway.cs          [MODIFIED - tambah EnumerateDirectoriesDirect]
+│   └── IFileSystemGateway.cs          [MODIFIED - tambah GetCreationTimeUtc]
 └── LargeFiles/
     └── LargeFileScanProgress.cs       [MODIFIED - tambah DirectoriesScanned field]
 
 BetterDiskCleanup.Infrastructure/
+├── Duplicates/                                    [NEW - Fase 3C]
+│   ├── DuplicateFileScanner.cs                    [NEW - 2-phase BFS scan + parallel SHA256]
+│   ├── DuplicateSelectionStrategies.cs            [NEW - 4 strategies: Newest/Oldest/Original/Manual]
+│   └── DuplicateDeletionValidator.cs              [NEW - ensure min 1 survivor per group]
 ├── LargeFiles/
 │   └── LargeFileScanner.cs            [MODIFIED - BFS traversal, dir-level progress reporting]
-└── Filesystem/
-    └── FileSystemGateway.cs           [MODIFIED - implement EnumerateDirectoriesDirect]
+├── Filesystem/
+│   └── FileSystemGateway.cs           [MODIFIED - implement GetCreationTimeUtc]
+└── DependencyInjection.cs             [MODIFIED - register IDuplicateFileScanner + strategies]
 
 BetterDiskCleanup.App/
-├── App.xaml                           [MODIFIED - full UI overhaul: new palette, custom styles]
-├── App.xaml.cs                        [MODIFIED - auto-admin elevation, LogStore+Serilog wiring]
-├── MainWindow.xaml                    [MODIFIED - log panel at bottom, Toggle Log button]
-├── MainWindow.xaml.cs                 [MODIFIED - safe ScrollIntoView try-catch]
+├── App.xaml                           [MODIFIED - version label → Fase 3C]
+├── App.xaml.cs                        [MODIFIED - register DuplicateFinderViewModel]
+├── MainWindow.xaml                    [MODIFIED - Duplicates nav button (index 4) + page content]
+├── MainWindow.xaml.cs                 [MODIFIED - ToggleGroupExpand handler]
 ├── ViewModels/
-│   ├── LargeFileFinderViewModel.cs    [MODIFIED - default 100MB, dir progress, 0-files hint]
-│   ├── LogStore.cs                    [MODIFIED - buffered flush to prevent VirtualizingStackPanel crash]
-│   └── MainShellViewModel.cs          [MODIFIED - LogStore, IsLogVisible, Toggle/Clear commands]
+│   ├── DuplicateFinderViewModel.cs    [NEW - scan, strategy, delete, group/member sub-VMs]
+│   ├── MainShellViewModel.cs          [MODIFIED - DuplicateFinderViewModel + IsDuplicatesPage]
+│   ├── BrowserCleanupViewModel.cs     [MODIFIED - PropertyChanged subscription]
+│   ├── LargeFileFinderViewModel.cs    [MODIFIED - default 100MB, dir progress, selection state]
+│   ├── LogStore.cs                    [MODIFIED - buffered flush]
+│   └── RecoveryHistoryViewModel.cs    [MODIFIED - expired session status]
 
 BetterDiskCleanup.Tests/
+├── Duplicates/                                    [NEW - Fase 3C]
+│   ├── DuplicateScannerTests.cs                   [NEW - 9 tests: size vs hash, location type, cancellation]
+│   ├── DuplicateSelectionStrategyTests.cs         [NEW - 6 tests: all 4 strategies]
+│   ├── DuplicateDeletionValidatorTests.cs         [NEW - 5 tests: min-1-survive, multi-group]
+│   ├── DuplicateScannerPerformanceTests.cs        [NEW - 3 tests: parallel timing, partial hash]
+│   └── DuplicateCleanupIntegrationTests.cs        [NEW - 3 tests: scan→delete→recovery→restore]
 ├── LargeFiles/
-│   └── LargeFileScannerAccessDeniedTests.cs [MODIFIED - tambah EnumerateDirectoriesDirect]
+│   └── LargeFileScannerAccessDeniedTests.cs [MODIFIED - tambah GetCreationTimeUtc]
 └── Support/
-    ├── InMemoryFileSystemGateway.cs   [MODIFIED - tambah EnumerateDirectoriesDirect]
-    └── TrackingFileSystemGateway.cs   [MODIFIED - tambah EnumerateDirectoriesDirect]
+    ├── InMemoryFileSystemGateway.cs   [MODIFIED - tambah GetCreationTimeUtc + CreatedUtc field]
+    └── TrackingFileSystemGateway.cs   [MODIFIED - tambah GetCreationTimeUtc]
 ```
 
 ---
 
 ## Test Summary
-- **Total: 90 tests, 90 passed, 0 failed**
-- 43 existing (Fase 0–3A): Safety, Cleanup, Recovery, Scanning, Browser, Integration
-- 47 new (Fase 3B): Threshold filtering, sorting, access-denied resilience, safety validation, category mapping, scan-delete-recovery integration
+- **Total: 135 tests, 135 passed, 0 failed**
+- 43 (Fase 0–3A): Safety, Cleanup, Recovery, Scanning, Browser, Integration
+- 47 (Fase 3B): Threshold filtering, sorting, access-denied resilience, safety validation, category mapping, scan-delete-recovery integration
+- 27 (Fase 3C): Duplicate detection (size vs hash), location type, selection strategies (Newest/Oldest/Original/Manual), min-1-survive validator, parallel hashing performance, partial hash, scan→delete→recovery→restore integration
+- 18 (Fase 3D): Protected entry detection (Microsoft-signed + system dir), action validation (Enable allowed, Disable/Remove rejected), Disable→Undo registry value, Remove→Restore registry value, undo idempotency, full lifecycle (create dummy key → disable → undo → remove → restore), protected entry rejection at service level
 
 ---
 
@@ -219,14 +365,15 @@ BetterDiskCleanup.Tests/
 1. Jangan ubah logic `IPathSafetyValidator` / `PathSafetyValidator`
 2. Jangan ubah signature publik `ICleanupExecutor` / `ICleanupSimulator` kecuali terpaksa
 3. Jangan hapus/modifikasi test yang sudah ada demi coverage
+4. **TIDAK ADA logic yang mengizinkan satu duplicate group kehilangan SEMUA file-nya** — ini bug kritis kalau lolos (enforced di 3 layer: strategy, validator, ViewModel)
+5. **TIDAK ADA modifikasi ke startup entry yang tervalidasi sebagai Protected** — validasi di level service, bukan cuma UI
+6. **TIDAK ADA Remove startup entry tanpa snapshot recovery tersimpan duluan** — reversible-by-design
 
 ---
 
-## Rencana Selanjutnya (Fase 3C–3D, urutan bebas)
-- **3C:** Duplicate Finder
-- **3D:** Startup Manager
-
-User juga masih perlu **manual verification** Recovery System (restore, konflik path, purge) yang belum sempat dilakukan.
+## Rencana Selanjutnya
+- User masih perlu **manual verification** Recovery System (restore, konflik path, purge) yang belum sempat dilakukan.
+- User juga perlu **manual verification** Startup Manager: scan di mesin, cocokkan dengan Task Manager > Startup tab
 
 ---
 

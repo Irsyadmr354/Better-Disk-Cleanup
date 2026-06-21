@@ -13,6 +13,8 @@ public sealed class FileSystemGateway : IFileSystemGateway
 
     public DateTime GetLastWriteTimeUtc(string path) => File.GetLastWriteTimeUtc(path);
 
+    public DateTime GetCreationTimeUtc(string path) => File.GetCreationTimeUtc(path);
+
     public FileAttributes GetAttributes(string path) => File.GetAttributes(path);
 
     public void ClearReadOnlyAttribute(string path)

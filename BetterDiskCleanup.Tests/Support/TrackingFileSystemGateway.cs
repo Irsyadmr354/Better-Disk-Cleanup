@@ -25,6 +25,8 @@ public sealed class TrackingFileSystemGateway : IFileSystemGateway
 
     public DateTime GetLastWriteTimeUtc(string path) => _inner.GetLastWriteTimeUtc(path);
 
+    public DateTime GetCreationTimeUtc(string path) => _inner.GetCreationTimeUtc(path);
+
     public FileAttributes GetAttributes(string path) => _inner.GetAttributes(path);
 
     public void ClearReadOnlyAttribute(string path) => _inner.ClearReadOnlyAttribute(path);

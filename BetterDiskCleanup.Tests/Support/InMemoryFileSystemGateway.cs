@@ -20,7 +20,8 @@ public sealed class InMemoryFileSystemGateway : IFileSystemGateway
         long sizeBytes,
         DateTime? lastModifiedUtc = null,
         FileAttributes attributes = FileAttributes.Normal,
-        byte[]? content = null)
+        byte[]? content = null,
+        DateTime? createdUtc = null)
     {
         var normalized = Normalize(path);
         var directory = Path.GetDirectoryName(normalized);
@@ -33,7 +34,8 @@ public sealed class InMemoryFileSystemGateway : IFileSystemGateway
             sizeBytes,
             lastModifiedUtc ?? DateTime.UtcNow,
             attributes,
-            content ?? CreateContent(sizeBytes));
+            content ?? CreateContent(sizeBytes),
+            createdUtc ?? lastModifiedUtc ?? DateTime.UtcNow);
     }
 
     public bool DirectoryExists(string path) => _directories.Contains(Normalize(path));
@@ -43,6 +45,8 @@ public sealed class InMemoryFileSystemGateway : IFileSystemGateway
     public long GetFileSize(string path) => _files[Normalize(path)].SizeBytes;
 
     public DateTime GetLastWriteTimeUtc(string path) => _files[Normalize(path)].LastModifiedUtc;
+
+    public DateTime GetCreationTimeUtc(string path) => _files[Normalize(path)].CreatedUtc;
 
     public FileAttributes GetAttributes(string path) => _files[Normalize(path)].Attributes;
 
@@ -186,5 +190,6 @@ public sealed class InMemoryFileSystemGateway : IFileSystemGateway
         long SizeBytes,
         DateTime LastModifiedUtc,
         FileAttributes Attributes,
-        byte[] Content);
+        byte[] Content,
+        DateTime CreatedUtc);
 }

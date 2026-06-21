@@ -17,6 +17,9 @@ public sealed class MainViewModel : ViewModelBase
     private CleanupSimulationResult? _simulationResult;
     private CleanupReport? _cleanupReport;
     private CancellationTokenSource? _scanCancellation;
+    
+    public long LastRecoverableBytes => _scanResult?.TotalSizeBytes ?? 0;
+    public int LastJunkFileCount => _scanResult?.FileCount ?? 0;
     private string _statusMessage = "Ready.";
     private string _scanSummary = "No scan performed yet.";
     private string _previewSummary = "No preview performed yet.";

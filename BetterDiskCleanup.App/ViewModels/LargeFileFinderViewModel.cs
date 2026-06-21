@@ -70,6 +70,9 @@ public sealed class LargeFileFinderViewModel : ViewModelBase
     public ObservableCollection<string> AvailableDrives { get; }
     public ObservableCollection<LargeFileItemViewModel> Results { get; }
 
+    public long LastRecoverableBytes => Results.Sum(r => r.Entry.SizeBytes);
+    public int LastJunkFileCount => Results.Count;
+
     public static IReadOnlyList<ThresholdOption> ThresholdOptions { get; } =
     [
         new ThresholdOption("100 MB", 100L * 1024 * 1024),
