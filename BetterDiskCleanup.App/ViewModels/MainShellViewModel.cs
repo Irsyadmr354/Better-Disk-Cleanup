@@ -16,7 +16,8 @@ public sealed class MainShellViewModel : ViewModelBase
         StorageAnalyzerViewModel storageAnalyzerViewModel,
         ReportsViewModel reportsViewModel,
         SettingsViewModel settingsViewModel,
-        LogStore logStore)
+        LogStore logStore,
+        RecoveryHistoryViewModel recoveryHistoryViewModel)
     {
         DashboardViewModel = dashboardViewModel;
         CleanupViewModel = cleanupViewModel;
@@ -28,6 +29,7 @@ public sealed class MainShellViewModel : ViewModelBase
         ReportsViewModel = reportsViewModel;
         SettingsViewModel = settingsViewModel;
         LogStore = logStore;
+        RecoveryHistoryViewModel = recoveryHistoryViewModel;
         SelectPageCommand = new ParameterizedRelayCommand(
             p => SelectedIndex = int.TryParse(p?.ToString(), out var i) ? i : 0);
         ToggleLogCommand = new RelayCommand(() =>
@@ -43,6 +45,8 @@ public sealed class MainShellViewModel : ViewModelBase
     public MainViewModel CleanupViewModel { get; }
 
     public BrowserCleanupViewModel BrowserCleanupViewModel { get; }
+
+    public RecoveryHistoryViewModel RecoveryHistoryViewModel { get; }
 
     public LargeFileFinderViewModel LargeFileFinderViewModel { get; }
 
